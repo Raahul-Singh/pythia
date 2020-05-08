@@ -1,5 +1,6 @@
 Pythia
 ======
+![Python application](https://github.com/Raahul-Singh/pythia/workflows/Python%20application/badge.svg)
 
 Pythia is an open-source Python library for Solar Magnetic Active Region Data Analysis.
 This library holds the principal work done as part of the [OpenAstonomy Google Summer of Code 2020 project](https://summerofcode.withgoogle.com/projects/#5503197600284672), 
