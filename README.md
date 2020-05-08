@@ -7,6 +7,16 @@ This library holds the principal work done as part of the [OpenAstonomy Google S
 
 [**Solar Weather Forecasting using Linear Algebra**](https://openastronomy.org/gsoc/gsoc2020/#/projects?project=space_weather_forecasting_using_linear_algebra)
 
+The mentors for this project are:
+
+@**dpshelio**
+
+@**mbobra**
+
+@**drsophiemurray**
+
+@**samaloney**
+
 Description
 -----------
 Space weather studies Sun-Earth interaction events. One of these, is the effect of solar flares have on our civilisation. The forecast of solar flares is not a solved problem, and many approaches have been tried. [Sunspotter](https://www.sunspotter.org/) is a citizen science project that asked volunteers to classify solar active regions by their complexity - as it’s believed complexity has a direct relationship with their activity.
