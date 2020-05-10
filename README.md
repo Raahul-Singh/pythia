@@ -25,10 +25,10 @@ The goal of this project is to develop a model for forecasting the likelihood th
 
 Some Cool Active Region Images
 ------------------------------
-![Image description](sample_data/AR/5397a56aa57caf04c6000001.jpg)
-![Image description](sample_data/AR/5397a56ba57caf04c6000009.jpg)
-![Image description](sample_data/AR/5397a56ba57caf04c6000013.jpg)
-![Image description](sample_data/AR/5397b77ea57caf04c6066e07.jpg)
+![Image description](data/AR/5397a56aa57caf04c6000001.jpg)
+![Image description](data/AR/5397a56ba57caf04c6000009.jpg)
+![Image description](data/AR/5397a56ba57caf04c6000013.jpg)
+![Image description](data/AR/5397b77ea57caf04c6066e07.jpg)
 
 Installation
 ------------
