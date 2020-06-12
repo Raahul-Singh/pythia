@@ -10,6 +10,8 @@ from sunpy.net import Fido
 from sunpy.net import attrs as a
 from sunpy.net import hek
 from sunpy.util import SunpyUserWarning
+from pythia.cleaning import MidnightRotation
+import astropy.units as u
 
 __all__ = ['Sunspotter']
 
@@ -689,3 +691,64 @@ class Sunspotter:
 
         plt.legend(handles=[hek_legend])
         plt.show()
+
+    def rotate_to_midnight(self, obsdate: str, fmt='%Y-%m-%d %H:%M:%S'):
+        """
+        Returns the Longitude at midnight, for a given observation time and date.
+        Parameters
+        ----------
+        obsdate : str
+            The observation time and date.
+        fmt : str, optional
+            The format in which obsdate is represented, by default '%Y-%m-%d %H:%M:%S'
+        Returns
+        -------
+        longitude : u.deg
+            longitude of the observation at midnight.
+        Examples
+        --------
+        >>> from pythia.seo import Sunspotter
+        >>> sunspotter = Sunspotter(timesfits="lookup_timefits.csv", properties="lookup_properties.csv")
+        >>> obsdate = '2000-01-01 12:47:02'
+        >>> sunspotter.rotate_to_midnight(obsdate)
+        <Longitude [4.87918286] deg>
+        """
+        rotator = MidnightRotation()
+        properties = self.get_properties_from_obsdate(obsdate)
+        latitude = properties['hcpos_y'].values * u.deg
+        time_to_nearest_midnight = rotator.get_seconds_to_nearest_midnight(obsdate) * u.s
+        return rotator.get_longitude_at_nearest_midnight(time_to_nearest_midnight, latitude)
+
+    def rotate_list_to_midnight(self, obslist: list, fmt='%Y-%m-%d %H:%M:%S'):
+        """
+        Returns list of Longitudes at midnight,
+        for a given list of observation times and dates.
+        Parameters
+        ----------
+        obslist : list
+            List of observation times and dates.
+        fmt : str, optional
+            The format in which each obsdate is represented, by default '%Y-%m-%d %H:%M:%S'
+        Returns
+        -------
+        longitudes : list of u.deg
+            list of Longitudes at midnight, for the given list of observation times and dates.
+        Examples
+        --------
+        >>> from pythia.seo import Sunspotter
+        >>> sunspotter = Sunspotter(timesfits="lookup_timefits.csv", properties="lookup_properties.csv")
+        >>> obslist = ['2000-01-02 12:51:02', '2000-01-14 12:47:02', '2000-01-18 12:51:02', '2000-01-23 12:47:02', '2000-01-24 12:51:02']
+        >>> sunspotter.rotate_list_to_midnight(obslist)
+        [<Longitude [4.8817556] deg>,
+        <Longitude [5.85374373] deg>,
+        <Longitude [5.15349168] deg>,
+        <Longitude [5.28433062] deg>,
+        <Longitude [4.82622275] deg>]
+        """
+        rotator = MidnightRotation()
+        longitudes = []
+
+        for obsdate in obslist:
+            longitudes.append(self.rotate_to_midnight(obsdate))
+
+        return longitudes
