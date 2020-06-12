@@ -1,0 +1,1 @@
+Adds the timefits, properties and readme files of the All Clear dataset. This will help in testing.
