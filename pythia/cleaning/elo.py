@@ -38,8 +38,8 @@ class ELO:
         column_map : dict, optional
             Dictionary, for mapping the column names of the score_board dataframe
             to variable names used in the ELO ranking system.
-            by default {"player 0": "image_id_0", 
-                                    "player 1": "image_id_1", 
+            by default {"player 0": "image_id_0",
+                                    "player 1": "image_id_1",
                                     "score for player 0": "image0_more_complex_image1"}
         """
         self.score_board = score_board
