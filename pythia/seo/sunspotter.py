@@ -38,7 +38,8 @@ class Sunspotter:
             missing_columns = ", ".join(missing_columns)
 
             raise SunpyUserWarning("Sunspotter Object cannot be created."
-                                    " The Timefits CSV is missing the following columns: " + missing_columns)
+                                   " The Timefits CSV is missing the following columns: " +
+                                   missing_columns)
 
         self.properties = pd.read_csv(self.properties, delimiter=delimiter)
 
@@ -47,7 +48,8 @@ class Sunspotter:
             missing_columns = ", ".join(missing_columns)
 
             raise SunpyUserWarning("Sunspotter Object cannot be created."
-                                    " The Properties CSV is missing the following columns: " + missing_columns)
+                                   " The Properties CSV is missing the following columns: " +
+                                   missing_columns)
 
     def get_timefits_id(self, obsdate: str):
         """
