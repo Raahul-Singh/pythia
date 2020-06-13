@@ -279,7 +279,47 @@ class Sunspotter:
         closest_observation : str
             Observation time and date in the Timesfits that is
             closest to the given observation time and date.
+
+        Examples
+        --------
+        >>> from pythia.seo import Sunspotter
+        >>> sunspotter = Sunspotter()
+        >>> obsdate = '2000-01-01 22:47:02'
+        >>> sunspotter.get_nearest_observation(obsdate)
+        '2000-01-01 12:47:02'
         """
         unique_dates = self.timesfits.index.unique()
         index = unique_dates.get_loc(obsdate, method='nearest')
         return str(unique_dates[index])
+
+    def get_all_observations_ids_in_range(self, start, end):
+        """
+        Returns all the observations ids in the given timerange.
+        The nearest start and end time in the Timesfits are used
+        to form the time range.
+
+        Parameters
+        ----------
+        start : str
+            The starting observation time and date.
+        end : str
+            The ending observation time and date.
+
+        Returns
+        -------
+        ids : pandas.Series
+            All the Sunspotter observation ids for the
+            given observation time range.
+
+        Examples
+        --------
+        >>> from pythia.seo import Sunspotter
+        >>> sunspotter = Sunspotter()
+        >>> start = '2000-01-02 12:51:02'
+        >>> end = '2000-01-03 12:51:02'
+        >>> sunspotter.get_all_observations_ids_in_range(start, end)
+        array([ 6,  7,  8,  9, 10, 11, 12, 13])
+        """
+        start = self.get_nearest_observation(start)
+        end = self.get_nearest_observation(end)
+        return self.timesfits[start:end]['#id'].values

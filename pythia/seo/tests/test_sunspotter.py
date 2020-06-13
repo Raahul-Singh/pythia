@@ -172,3 +172,9 @@ def test_number_of_observations(sunspotter, obsdate):
                          ('2100-01-01 00:00:00', '2005-12-31 12:48:02')])
 def test_get_nearest_observation(sunspotter, obsdate, closest_date):
     assert sunspotter.get_nearest_observation(obsdate) == closest_date
+
+
+def get_all_observations_ids_in_range(sunspotter):
+    start = '2000-01-02 12:51:02'
+    end = '2000-01-03 12:51:02'
+    assert all(sunspotter.get_all_observations_ids_in_range(start, end) == np.array([ 6,  7,  8,  9, 10, 11, 12, 13]))
