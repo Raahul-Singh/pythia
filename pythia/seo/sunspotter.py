@@ -292,7 +292,7 @@ class Sunspotter:
         index = unique_dates.get_loc(obsdate, method='nearest')
         return str(unique_dates[index])
 
-    def get_all_observations_ids_in_range(self, start, end):
+    def get_all_observations_ids_in_range(self, start : str, end : str):
         """
         Returns all the observations ids in the given timerange.
         The nearest start and end time in the Timesfits are used
@@ -307,7 +307,7 @@ class Sunspotter:
 
         Returns
         -------
-        ids : pandas.Series
+        ids : numpy.array
             All the Sunspotter observation ids for the
             given observation time range.
 
@@ -323,3 +323,47 @@ class Sunspotter:
         start = self.get_nearest_observation(start)
         end = self.get_nearest_observation(end)
         return self.timesfits[start:end]['#id'].values
+
+    def get_fits_filenames_from_range(self, start : str, end : str):
+        """
+        Returns all the FITS filenames for observations in the given timerange.
+        The nearest start and end time in the Timesfits are used to form the 
+        time range.
+
+        Parameters
+        ----------
+        start : str
+            The starting observation time and date.
+        end : str
+            The ending observation time and date.
+
+        Returns
+        -------
+        filenames : pandas.Series
+            all the FITS filenames for observations in the given timerange.
+
+        Notes
+        -----
+        If start time is equal to end time, all the filenames corresponding to
+        that particular observation will be returned.
+
+        Examples
+        --------
+        >>> from pythia.seo import Sunspotter
+        >>> sunspotter = Sunspotter()
+        >>> start = '2000-01-02 12:51:02'
+        >>> end = '2000-01-03 12:51:02'
+        >>> sunspotter.get_fits_filenames_from_range(start, end)
+        obs_date
+        2000-01-02 12:51:02    20000102_1251_mdiB_1_8810.fits
+        2000-01-02 12:51:02    20000102_1251_mdiB_1_8813.fits
+        2000-01-02 12:51:02    20000102_1251_mdiB_1_8814.fits
+        2000-01-02 12:51:02    20000102_1251_mdiB_1_8815.fits
+        2000-01-03 12:51:02    20000103_1251_mdiB_1_8810.fits
+        2000-01-03 12:51:02    20000103_1251_mdiB_1_8813.fits
+        2000-01-03 12:51:02    20000103_1251_mdiB_1_8814.fits
+        2000-01-03 12:51:02    20000103_1251_mdiB_1_8815.fits
+        Name: filename, dtype: object
+        """
+        ids_in_range = self.get_all_observations_ids_in_range(start, end)
+        return self.timesfits[self.timesfits['#id'].isin(ids_in_range)]['filename']

@@ -174,7 +174,20 @@ def test_get_nearest_observation(sunspotter, obsdate, closest_date):
     assert sunspotter.get_nearest_observation(obsdate) == closest_date
 
 
-def get_all_observations_ids_in_range(sunspotter):
+def test_get_all_observations_ids_in_range(sunspotter):
     start = '2000-01-02 12:51:02'
     end = '2000-01-03 12:51:02'
     assert all(sunspotter.get_all_observations_ids_in_range(start, end) == np.array([ 6,  7,  8,  9, 10, 11, 12, 13]))
+
+
+@pytest.mark.parametrize("start,end,filenames",
+                        [('2000-01-02 12:51:02', '2000-01-03 12:51:02',
+                          np.array(['20000102_1251_mdiB_1_8810.fits', '20000102_1251_mdiB_1_8813.fits',
+                                    '20000102_1251_mdiB_1_8814.fits', '20000102_1251_mdiB_1_8815.fits',
+                                    '20000103_1251_mdiB_1_8810.fits', '20000103_1251_mdiB_1_8813.fits',
+                                    '20000103_1251_mdiB_1_8814.fits', '20000103_1251_mdiB_1_8815.fits'], dtype=object)),
+                         ('2000-01-02 12:51:02', '2000-01-02 12:51:02',
+                          np.array(['20000102_1251_mdiB_1_8810.fits', '20000102_1251_mdiB_1_8813.fits',
+                                    '20000102_1251_mdiB_1_8814.fits', '20000102_1251_mdiB_1_8815.fits'], dtype=object))])
+def test_get_fits_filenames_from_range(sunspotter, start, end, filenames):
+    assert all(sunspotter.get_fits_filenames_from_range(start, end).values == filenames)
