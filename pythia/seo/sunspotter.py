@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from sunpy.util import SunpyUserWarning
 from pathlib import Path
+from sunpy.net import Fido, attrs as a
 
 __all__ = ['Sunspotter']
 
@@ -367,3 +368,33 @@ class Sunspotter:
         """
         ids_in_range = self.get_all_observations_ids_in_range(start, end)
         return self.timesfits[self.timesfits['#id'].isin(ids_in_range)]['filename']
+
+    def get_mdi_fulldisk_fits_file(self, obsdate: str, filepath: str = str(path) + "/fulldisk/"):
+        """
+        Downloads the MDI Fulldisk FITS file corresponding to a particular observation.
+
+        Parameters
+        ----------
+        obsdate : str
+            The observation time and date.
+        filepath : [type], optional
+            file path for the file to be downloaded.
+            By default downloaded files are stored in `~pythia/data/fulldisk`
+
+        Returns
+        -------
+        filepath : str
+            Filepath to the downloaded FITS file.
+
+        Examples
+        --------
+        >>> from pythia.seo import Sunspotter
+        >>> sunspotter = Sunspotter()
+        >>> obsdate = '2000-01-01 12:47:02'
+        >>> sunspotter.get_mdi_fulldisk_fits_file(obsdate)
+        '~pythia/data/all_clear/fulldisk/fd_m_96m_01d_2556_0008.fits'
+        """
+        obsdate = self.get_nearest_observation(obsdate)
+        search_results = Fido.search(a.Time(obsdate, obsdate), a.Instrument.mdi)
+        downloaded_file = Fido.fetch(search_results, path=filepath)
+        return downloaded_file[0]
