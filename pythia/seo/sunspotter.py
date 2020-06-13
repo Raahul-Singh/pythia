@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from sunpy.util import SunpyUserWarning
 from pathlib import Path
 
@@ -136,7 +137,8 @@ class Sunspotter:
 
     def get_timesfits_id(self, obsdate: str):
         """
-        Returns the Sunspotter observation id for a given observation date and time.
+        Returns the Sunspotter observation id for the
+        first observation a given observation date and time.
 
         Parameters
         ----------
@@ -146,17 +148,44 @@ class Sunspotter:
         Returns
         -------
         id : int
-            The Sunspotter observation id for the given observation date and time.
+            The Sunspotter observation id for the first observation
+            for the given observation date and time.
 
         Examples
         --------
         >>> from pythia.seo import Sunspotter
         >>> sunspotter = Sunspotter()
         >>> obsdate = '2000-01-01 12:47:02'
-        >>> ssp.get_timesfits_id(obsdate)
+        >>> sunspotter.get_timesfits_id(obsdate)
         1
         """
         return self.timesfits.loc[obsdate].get(key='#id').iloc[0]
+
+    def get_all_ids_for_observation(self, obsdate: str):
+        """
+        Returns all the Sunspotter observation ids for the
+        given observation date and time.
+
+        Parameters
+        ----------
+        obsdate : str
+            The observation time and date.
+
+        Returns
+        -------
+        ids : pandas.Series
+            All the Sunspotter observation ids for the 
+            given observation date and time.
+
+        Examples
+        --------
+        >>> from pythia.seo import Sunspotter
+        >>> sunspotter = Sunspotter()
+        >>> obsdate = '2000-01-01 12:47:02'
+        >>> sunspotter.get_all_ids_for_observation(obsdate)
+        array([1, 2, 3, 4, 5])
+        """
+        return self.timesfits.loc[obsdate].get(key='#id').values
 
     def get_properties(self, idx: int):
         """

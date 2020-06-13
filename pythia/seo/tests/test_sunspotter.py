@@ -1,5 +1,6 @@
 import pytest
 import pandas as pd
+import numpy as np
 from pathlib import Path
 from pythia.seo import Sunspotter
 from sunpy.util import SunpyUserWarning
@@ -145,6 +146,11 @@ def test_sunspotter_timesfits_columns():
 
 def test_get_timesfits_id(sunspotter, obsdate):
     assert sunspotter.get_timesfits_id(obsdate) == 1
+
+
+def test_get_all_ids_for_observation(sunspotter, obsdate):
+
+    assert all(sunspotter.get_all_ids_for_observation(obsdate) == np.array([1, 2, 3, 4, 5]))
 
 
 def test_get_properties(sunspotter, properties):
