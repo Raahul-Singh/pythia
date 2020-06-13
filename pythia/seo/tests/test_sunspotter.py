@@ -163,3 +163,12 @@ def test_get_properties_from_obsdate(sunspotter, obsdate, properties):
 
 def test_number_of_observations(sunspotter, obsdate):
     assert sunspotter.number_of_observations(obsdate) == 5
+
+
+@pytest.mark.parametrize("obsdate,closest_date",
+                        [('2000-01-02 00:49:02', '2000-01-02 12:51:02'),
+                         ('2000-01-02 00:49:01', '2000-01-01 12:47:02'),
+                         ('1999-01-01 00:00:00', '2000-01-01 12:47:02'),
+                         ('2100-01-01 00:00:00', '2005-12-31 12:48:02')])
+def test_get_nearest_observation(sunspotter, obsdate, closest_date):
+    assert sunspotter.get_nearest_observation(obsdate) == closest_date

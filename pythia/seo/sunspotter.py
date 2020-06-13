@@ -263,3 +263,23 @@ class Sunspotter:
         5
         """
         return self.timesfits.loc[obsdate].shape[0]
+
+    def get_nearest_observation(self, obsdate : str):
+        """
+        Returns the observation time and date in the Timesfits that is
+        closest to the given observation time and date.
+
+        Parameters
+        ----------
+        obsdate : str
+            The observation time and date.
+
+        Returns
+        -------
+        closest_observation : str
+            Observation time and date in the Timesfits that is
+            closest to the given observation time and date.
+        """
+        unique_dates = self.timesfits.index.unique()
+        index = unique_dates.get_loc(obsdate, method='nearest')
+        return str(unique_dates[index])
