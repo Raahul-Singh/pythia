@@ -1,7 +1,7 @@
 import pytest
 import pandas as pd
 from pathlib import Path
-from pythia.seo.sunspotter import Sunspotter
+from pythia.seo import Sunspotter
 from sunpy.util import SunpyUserWarning
 
 
@@ -58,6 +58,17 @@ def sunspotter(properties_columns, timesfits_columns, classifications_columns):
 def obsdate():
     # `obs_date` corresponding to `#id` 1
     return '2000-01-01 12:47:02'
+
+
+def test_sunspotter_no_parameters(timesfits_columns, properties_columns):
+    timesfits = pd.read_csv(path / "lookup_timesfits.csv", delimiter=';')
+    properties = pd.read_csv(path / "lookup_properties.csv", delimiter=';')
+
+    sunspotter = Sunspotter(timesfits_columns=timesfits_columns,
+                            properties_columns=properties_columns)
+
+    assert sunspotter.timesfits.equals(timesfits)
+    assert sunspotter.properties.equals(properties)
 
 
 def test_sunspotter_base_object(properties_columns, timesfits_columns):

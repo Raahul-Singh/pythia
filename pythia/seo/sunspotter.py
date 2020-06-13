@@ -1,12 +1,15 @@
 import pandas as pd
 from sunpy.util import SunpyUserWarning
+from pathlib import Path
 
 __all__ = ['Sunspotter']
 
+path = Path(__file__).parent.parent.parent / "data/all_clear"
 
 class Sunspotter:
 
-    def __init__(self, *, timesfits: str, properties: str, delimiter: str=';',
+    def __init__(self, *, timesfits: str = path / "lookup_timesfits.csv", 
+                 properties: str = path / "lookup_properties.csv", delimiter: str=';',
                  properties_columns: list=['#id'], timesfits_columns: list=['#id'],
                  classifications=None, classifications_columns=None):
         """
@@ -14,8 +17,12 @@ class Sunspotter:
         ----------
         timesfits : str
             filepath to `lookup_timesfits.csv`
+            by default points to the Timesfits file from All Clear Dataset
+            stored in `~pythia/data/all_clear`
         properties : str
             filepath to `lookup_properties.csv`
+            by default points to the Properties file from All Clear Dataset
+            stored in `~pythia/data/all_clear`
         delimiter : str, optional
             Delimiter for the CSV files, by default ';'
         properties_columns : list, optional
@@ -111,7 +118,7 @@ class Sunspotter:
         Examples
         --------
         >>> from pythia.seo import Sunspotter
-        >>> sunspotter = Sunspotter(timesfits="lookup_timesfits.csv", properties="lookup_properties.csv")
+        >>> sunspotter = Sunspotter()
         >>> obsdate = '2000-01-01 12:47:02'
         >>> ssp.get_timesfits_id(obsdate)
         1
@@ -135,7 +142,7 @@ class Sunspotter:
         Examples
         --------
         >>> from pythia.seo import Sunspotter
-        >>> sunspotter = Sunspotter(timesfits="lookup_timesfits.csv", properties="lookup_properties.csv")
+        >>> sunspotter = Sunspotter()
         >>> sunspotter.get_properties(1)
             #id                      filename zooniverse_id  ...  pxpos_y  sszn  zurich
         0    1  530be1183ae74079c300000d.jpg    ASZ000090y  ...  166.877     1     bxo
@@ -160,7 +167,7 @@ class Sunspotter:
         Examples
         --------
         >>> from pythia.seo import Sunspotter
-        >>> sunspotter = Sunspotter(timesfits="lookup_timesfits.csv", properties="lookup_properties.csv")
+        >>> sunspotter = Sunspotter()
         >>> obsdate = '2000-01-01 12:47:02'
         >>> sunspotter.get_properties_from_obsdate(obsdate)
             #id                      filename zooniverse_id  ...  pxpos_y  sszn  zurich
