@@ -32,17 +32,26 @@ def properties():
 
 
 @pytest.fixture
-def timefits_columns():
+def timesfits_columns():
     return ['#id', 'filename', 'obs_date']
 
 
 @pytest.fixture
-def sunspotter(properties_columns, timefits_columns):
-    return Sunspotter(timefits=path / "lookup_timesfits.csv",
+def classifications_columns():
+    return ['#id', 'zooniverse_class', 'user_id', 'image_id_0', 'image_id_1',
+            'image0_more_complex_image1', 'used_inverted', 'bin', 'date_created',
+            'date_started', 'date_finished']
+
+
+@pytest.fixture
+def sunspotter(properties_columns, timesfits_columns, classifications_columns):
+    return Sunspotter(timesfits=path / "lookup_timesfits.csv",
                       properties=path / "lookup_properties.csv",
+                      classifications=path / "classifications.csv",
                       delimiter=';',
-                      timefits_columns=timefits_columns,
-                      properties_columns=properties_columns)
+                      timesfits_columns=timesfits_columns,
+                      properties_columns=properties_columns,
+                      classifications_columns=classifications_columns)
 
 
 @pytest.fixture
@@ -51,21 +60,46 @@ def obsdate():
     return '2000-01-01 12:47:02'
 
 
-def test_sunspotter_base_object(properties_columns, timefits_columns):
+def test_sunspotter_base_object(properties_columns, timesfits_columns):
 
-    sunspotter = Sunspotter(timefits=path / "lookup_timesfits.csv",
+    sunspotter = Sunspotter(timesfits=path / "lookup_timesfits.csv",
                             properties=path / "lookup_properties.csv",
-                            timefits_columns=timefits_columns,
+                            timesfits_columns=timesfits_columns,
                             properties_columns=properties_columns)
 
     assert set(sunspotter.properties_columns) == set(properties_columns)
-    assert set(sunspotter.timefits_columns) == set(timefits_columns)
+    assert set(sunspotter.timesfits_columns) == set(timesfits_columns)
+
+
+def test_sunspotter_with_classifications(classifications_columns):
+
+    sunspotter = Sunspotter(timesfits=path / "lookup_timesfits.csv",
+                            properties=path / "lookup_properties.csv")
+
+    assert sunspotter.classifications_columns is None
+    assert sunspotter.classifications is None
+
+    with pytest.raises(SunpyUserWarning):
+        # Because Classifications Columns aren't specified.
+        Sunspotter(timesfits=path / "lookup_timesfits.csv",
+                   properties=path / "lookup_properties.csv",
+                   classifications=path / "classifications.csv")
+
+    assert sunspotter.classifications_columns is None
+    assert sunspotter.classifications is None
+
+    sunspotter = Sunspotter(timesfits=path / "lookup_timesfits.csv",
+                            properties=path / "lookup_properties.csv",
+                            classifications=path / "classifications.csv",
+                            classifications_columns=classifications_columns)
+
+    assert set(sunspotter.classifications_columns) == set(classifications_columns)
 
 
 def test_sunspotter_incorrect_delimiter():
 
     with pytest.raises(SunpyUserWarning):
-        Sunspotter(timefits=path / "lookup_timesfits.csv",
+        Sunspotter(timesfits=path / "lookup_timesfits.csv",
                    properties=path / "lookup_properties.csv",
                    delimiter=',')
 
@@ -73,23 +107,33 @@ def test_sunspotter_incorrect_delimiter():
 def test_sunspotter_properties_columns():
 
     with pytest.raises(SunpyUserWarning):
-        Sunspotter(timefits=path / "lookup_timesfits.csv",
+        Sunspotter(timesfits=path / "lookup_timesfits.csv",
                    properties=path / "lookup_properties.csv",
                    properties_columns=["This shouldn't be present"],
+                   delimiter=';')
+
+
+def test_sunspotter_classifications_columns():
+
+    with pytest.raises(SunpyUserWarning):
+        Sunspotter(timesfits=path / "lookup_timesfits.csv",
+                   properties=path / "lookup_properties.csv",
+                   classifications=path / "classifications.csv",
+                   classifications_columns=["This shouldn't be present"],
                    delimiter=';')
 
 
 def test_sunspotter_timesfits_columns():
 
     with pytest.raises(SunpyUserWarning):
-        Sunspotter(timefits=path / "lookup_timesfits.csv",
+        Sunspotter(timesfits=path / "lookup_timesfits.csv",
                    properties=path / "lookup_properties.csv",
-                   timefits_columns=["This shouldn't be present"],
+                   timesfits_columns=["This shouldn't be present"],
                    delimiter=';')
 
 
-def test_get_timefits_id(sunspotter, obsdate):
-    assert sunspotter.get_timefits_id(obsdate) == 1
+def test_get_timesfits_id(sunspotter, obsdate):
+    assert sunspotter.get_timesfits_id(obsdate) == 1
 
 
 def test_get_properties(sunspotter, properties):
