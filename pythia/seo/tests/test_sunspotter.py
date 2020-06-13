@@ -17,18 +17,13 @@ def properties_columns():
 
 
 @pytest.fixture
-def properties():
+def properties(properties_columns):
     # Properties corresponding to `obs_date` '2000-01-01 12:47:02' and `#id` 1
     data = [[1, '530be1183ae74079c300000d.jpg', 'ASZ000090y', 37.8021,
              34400.0, 0.12, 2890.0, 3.72, 0, 1, 2.18e+22, 0.01, 'beta', 452.26991,
              443.92976, 0, 0, 1, 8809, 229.19343999999998, 166.877, 1, 'bxo']]
 
-    columns = ['#id', 'filename', 'zooniverse_id', 'angle', 'area', 'areafrac',
-               'areathesh', 'bipolesep', 'c1flr24hr', 'id_filename', 'flux',
-               'fluxfrac', 'hale', 'hcpos_x', 'hcpos_y', 'm1flr12hr', 'm5flr12hr',
-               'n_nar', 'noaa', 'pxpos_x', 'pxpos_y', 'sszn', 'zurich']
-
-    return pd.DataFrame(data=data, columns=columns)
+    return pd.DataFrame(data=data, columns=properties_columns)
 
 
 @pytest.fixture
@@ -67,8 +62,13 @@ def test_sunspotter_no_parameters():
     # get all columns is by default True for both Timesfits and Properties.
     sunspotter = Sunspotter()
 
-    assert sunspotter.timesfits.equals(timesfits)
-    assert sunspotter.properties.equals(properties)
+    # To get obs_date back a column of dtype `str`
+    sunspotter.timesfits.reset_index(inplace=True)
+    sunspotter.timesfits.obs_date = sunspotter.timesfits.obs_date.dt.strftime('%Y-%m-%d %H:%M:%S')
+
+    # Sorting columns as the order of Columns shouldn't matter
+    assert sunspotter.timesfits.sort_index(axis=1).equals(timesfits.sort_index(axis=1))
+    assert sunspotter.properties.sort_index(axis=1).equals(properties.sort_index(axis=1))
 
 
 def test_sunspotter_base_object(properties_columns, timesfits_columns):

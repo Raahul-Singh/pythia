@@ -12,7 +12,7 @@ class Sunspotter:
                  properties: str = path / "lookup_properties.csv", get_all_properties_columns: bool = True, 
                  timesfits_columns: list = ['#id'], properties_columns: list = ['#id'],
                  classifications=None, classifications_columns=None,
-                 delimiter: str = ';'):
+                 delimiter: str = ';', datetime_fmt: str = '%Y-%m-%d %H:%M:%S'):
         """
         Parameters
         ----------
@@ -42,6 +42,9 @@ class Sunspotter:
             Default behaviour is not to load the file, hence by default None
         delimiter : str, optional
             Delimiter for the CSV files, by default ';'
+        datetime_fmt : str, optional
+            Format for interpreting the observation datetimes in the CSV files,
+            by default '%Y-%m-%d %H:%M:%S'
         """
         self.timesfits = timesfits
         self.get_all_timesfits_columns = get_all_timesfits_columns
@@ -54,6 +57,8 @@ class Sunspotter:
 
         self.classifications = classifications
         self.classifications_columns = classifications_columns
+
+        self.datetime_fmt = datetime_fmt
 
         self._get_data(delimiter)
 
@@ -78,6 +83,11 @@ class Sunspotter:
             raise SunpyUserWarning("Sunspotter Object cannot be created."
                                    " The Timesfits CSV is missing the following columns: " +
                                    missing_columns)
+
+        if 'obs_date' in self.timesfits.columns:
+            self.timesfits.obs_date = pd.to_datetime(self.timesfits.obs_date,
+                                                     format=self.datetime_fmt)
+            self.timesfits.set_index("obs_date", inplace=True)
 
         # Reading the Properties file
         try:
@@ -146,7 +156,7 @@ class Sunspotter:
         >>> ssp.get_timesfits_id(obsdate)
         1
         """
-        return self.timesfits[self.timesfits.obs_date == obsdate].get(key='#id').iloc[0]
+        return self.timesfits.loc[obsdate].get(key='#id').iloc[0]
 
     def get_properties(self, idx: int):
         """
