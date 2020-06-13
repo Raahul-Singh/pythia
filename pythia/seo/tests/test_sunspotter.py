@@ -191,3 +191,16 @@ def test_get_all_observations_ids_in_range(sunspotter):
                                     '20000102_1251_mdiB_1_8814.fits', '20000102_1251_mdiB_1_8815.fits'], dtype=object))])
 def test_get_fits_filenames_from_range(sunspotter, start, end, filenames):
     assert all(sunspotter.get_fits_filenames_from_range(start, end).values == filenames)
+
+
+@pytest.mark.parametrize("start,end,obslist",
+                        [('2000-01-01 12:47:02', '2000-01-15 12:47:02',
+                          pd.DatetimeIndex(['2000-01-01 12:47:02', '2000-01-02 12:51:02',
+                                            '2000-01-03 12:51:02', '2000-01-04 12:51:02',
+                                            '2000-01-05 12:51:02', '2000-01-06 12:51:02',
+                                            '2000-01-11 12:51:02', '2000-01-12 12:51:02',
+                                            '2000-01-13 12:51:02', '2000-01-14 12:47:02',
+                                            '2000-01-15 12:47:02'],
+                                             dtype='datetime64[ns]', name='obs_date', freq=None))])
+def test_get_available_obsdatetime_range(sunspotter, start, end, obslist):
+    assert all(sunspotter.get_available_obsdatetime_range(start, end) == obslist)

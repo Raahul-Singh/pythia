@@ -454,3 +454,42 @@ class Sunspotter:
         search_results = Fido.search(a.Time(obsdate, obsdate), a.Instrument.mdi)
         downloaded_file = Fido.fetch(search_results, path=filepath)
         return Map(downloaded_file[0])
+
+    def get_available_obsdatetime_range(self, start: str, end: str):
+        """
+        Returns all the observations datetimes in the given timerange.
+        The nearest start and end time in the Timesfits are used
+        to form the time range.
+
+        Parameters
+        ----------
+        start : str
+            The starting observation time and date.
+        end : str
+            The ending observation time and date.
+
+        Returns
+        -------
+        obs_list : pandas.DatetimeIndex
+            All the Sunspotter observation datetimes for the
+            given observation time range.
+
+        Examples
+        --------
+        >>> from pythia.seo import Sunspotter
+        >>> sunspotter = Sunspotter()
+        >>> start = '2000-01-01 12:47:02'
+        >>> end = '2000-01-15 12:47:02'
+        >>> sunspotter.get_available_obsdatetime_range(start, end)
+        DatetimeIndex(['2000-01-01 12:47:02', '2000-01-02 12:51:02',
+                    '2000-01-03 12:51:02', '2000-01-04 12:51:02',
+                    '2000-01-05 12:51:02', '2000-01-06 12:51:02',
+                    '2000-01-11 12:51:02', '2000-01-12 12:51:02',
+                    '2000-01-13 12:51:02', '2000-01-14 12:47:02',
+                    '2000-01-15 12:47:02'],
+                    dtype='datetime64[ns]', name='obs_date', freq=None)
+        """
+        start = self.get_nearest_observation(start)
+        end = self.get_nearest_observation(end)
+
+        return self.timesfits[start: end].index.unique()
