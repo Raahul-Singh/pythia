@@ -3,6 +3,7 @@ import numpy as np
 from sunpy.util import SunpyUserWarning
 from pathlib import Path
 from sunpy.net import Fido, attrs as a
+from sunpy.map import Map
 
 __all__ = ['Sunspotter']
 
@@ -394,7 +395,62 @@ class Sunspotter:
         >>> sunspotter.get_mdi_fulldisk_fits_file(obsdate)
         '~pythia/data/all_clear/fulldisk/fd_m_96m_01d_2556_0008.fits'
         """
+        # TODO: Figure out a way to test the downloaded file.
         obsdate = self.get_nearest_observation(obsdate)
         search_results = Fido.search(a.Time(obsdate, obsdate), a.Instrument.mdi)
         downloaded_file = Fido.fetch(search_results, path=filepath)
         return downloaded_file[0]
+
+    def get_mdi_fulldisk_map(self, obsdate: str, filepath: str = str(path) + "/fulldisk/"):
+        """
+        Downloads the MDI Fulldisk FITS file corresponding to a particular observation.
+        And returns a SunPy Map corresponding to the downloaded file.
+
+        Parameters
+        ----------
+        obsdate : str
+            The observation time and date.
+        filepath : [type], optional
+            file path for the file to be downloaded.
+            By default downloaded files are stored in `~pythia/data/fulldisk`
+
+        Returns
+        -------
+        filepath : str
+            Filepath to the downloaded FITS file.
+
+        Examples
+        --------
+        >>> from pythia.seo import Sunspotter
+        >>> sunspotter = Sunspotter()
+        >>> obsdate = '2000-01-01 12:47:02'
+        >>> sunspotter.get_mdi_fulldisk_map(obsdate)
+        <sunpy.map.sources.soho.MDIMap object at 0x7f6ca7aedc88>
+        SunPy Map
+        ---------
+        Observatory:		 SOHO
+        Instrument:		 MDI
+        Detector:		 MDI
+        Measurement:		 magnetogram
+        Wavelength:		 0.0 Angstrom
+        Observation Date:	 2000-01-01 12:47:02
+        Exposure Time:		 0.000000 s
+        Dimension:		 [1024. 1024.] pix
+        Coordinate System:	 helioprojective
+        Scale:			 [1.98083342 1.98083342] arcsec / pix
+        Reference Pixel:	 [511.36929067 511.76453018] pix
+        Reference Coord:	 [0. 0.] arcsec                   
+        array([[nan, nan, nan, ..., nan, nan, nan],
+            [nan, nan, nan, ..., nan, nan, nan],
+            [nan, nan, nan, ..., nan, nan, nan],
+            ...,
+            [nan, nan, nan, ..., nan, nan, nan],
+            [nan, nan, nan, ..., nan, nan, nan],
+            [nan, nan, nan, ..., nan, nan, nan]], dtype=float32)
+        """
+        # TODO: Figure out the file naming convention to check if the file has been downloaded already.
+        # TODO: Test this!
+        obsdate = self.get_nearest_observation(obsdate)
+        search_results = Fido.search(a.Time(obsdate, obsdate), a.Instrument.mdi)
+        downloaded_file = Fido.fetch(search_results, path=filepath)
+        return Map(downloaded_file[0])
