@@ -237,3 +237,29 @@ class Sunspotter:
         [1 rows x 23 columns]
         """
         return self.get_properties(self.get_timesfits_id(obsdate))
+
+    def number_of_observations(self, obsdate: str):
+        """
+        Returns number of Sunspotter observations for the
+        given observation date and time.
+
+        Parameters
+        ----------
+        obsdate : str
+            The observation time and date.
+
+        Returns
+        -------
+        number_of_observations : int
+            Number of Sunspotter observations
+            for the given observation date and time.
+
+        Examples
+        --------
+        >>> from pythia.seo import Sunspotter
+        >>> sunspotter = Sunspotter()
+        >>> obsdate = '2000-01-01 12:47:02'
+        >>> sunspotter.number_of_observations(obsdate)
+        5
+        """
+        return self.timesfits.loc[obsdate].shape[0]

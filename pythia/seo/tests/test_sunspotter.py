@@ -159,3 +159,7 @@ def test_get_properties(sunspotter, properties):
 
 def test_get_properties_from_obsdate(sunspotter, obsdate, properties):
     assert sunspotter.get_properties_from_obsdate(obsdate).equals(properties)
+
+
+def test_number_of_observations(sunspotter, obsdate):
+    assert sunspotter.number_of_observations(obsdate) == 5
