@@ -60,12 +60,12 @@ def obsdate():
     return '2000-01-01 12:47:02'
 
 
-def test_sunspotter_no_parameters(timesfits_columns, properties_columns):
+def test_sunspotter_no_parameters():
     timesfits = pd.read_csv(path / "lookup_timesfits.csv", delimiter=';')
     properties = pd.read_csv(path / "lookup_properties.csv", delimiter=';')
 
-    sunspotter = Sunspotter(timesfits_columns=timesfits_columns,
-                            properties_columns=properties_columns)
+    # get all columns is by default True for both Timesfits and Properties.
+    sunspotter = Sunspotter()
 
     assert sunspotter.timesfits.equals(timesfits)
     assert sunspotter.properties.equals(properties)

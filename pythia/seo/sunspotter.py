@@ -8,10 +8,11 @@ path = Path(__file__).parent.parent.parent / "data/all_clear"
 
 class Sunspotter:
 
-    def __init__(self, *, timesfits: str = path / "lookup_timesfits.csv", 
-                 properties: str = path / "lookup_properties.csv", delimiter: str=';',
-                 properties_columns: list=['#id'], timesfits_columns: list=['#id'],
-                 classifications=None, classifications_columns=None):
+    def __init__(self, *, timesfits: str = path / "lookup_timesfits.csv", get_all_timesfits_columns: bool = True,
+                 properties: str = path / "lookup_properties.csv", get_all_properties_columns: bool = True, 
+                 timesfits_columns: list = ['#id'], properties_columns: list = ['#id'],
+                 classifications=None, classifications_columns=None,
+                 delimiter: str = ';'):
         """
         Parameters
         ----------
@@ -19,38 +20,53 @@ class Sunspotter:
             filepath to `lookup_timesfits.csv`
             by default points to the Timesfits file from All Clear Dataset
             stored in `~pythia/data/all_clear`
+        get_all_timesfits_columns : bool, optional
+            Load all columns from the Timesfits CSV file, by default True
         properties : str
             filepath to `lookup_properties.csv`
             by default points to the Properties file from All Clear Dataset
             stored in `~pythia/data/all_clear`
-        delimiter : str, optional
-            Delimiter for the CSV files, by default ';'
-        properties_columns : list, optional
-            Columns required from lookup_properties.csv, by default ['#id']
+        get_all_properties_columns : bool, optional
+            Load all columns from the Properties CSV file, by default True
         timesfits_columns : list, optional
             Columns required from lookup_timesfits.csv, by default ['#id']
+            Will be overridden if `get_all_timesfits_columns` is True.
+        properties_columns : list, optional
+            Columns required from lookup_properties.csv, by default ['#id']
+            Will be overridden if `get_all_properties_columns` is True.
         classifications : str, optional
             filepath to `classifications.csv`
             Default behaviour is not to load the file, hence by default None
         classifications_columns : list, optional
             Columns required from `classifications.csv`
             Default behaviour is not to load the file, hence by default None
+        delimiter : str, optional
+            Delimiter for the CSV files, by default ';'
         """
         self.timesfits = timesfits
+        self.get_all_timesfits_columns = get_all_timesfits_columns
+
         self.properties = properties
+        self.get_all_properties_columns = get_all_properties_columns
+
         self.timesfits_columns = set(timesfits_columns)
         self.properties_columns = set(properties_columns)
+
         self.classifications = classifications
         self.classifications_columns = classifications_columns
 
         self._get_data(delimiter)
 
     def _get_data(self, delimiter: str):
-
+        # Reading the Timesfits file
         try:
-            self.timesfits = pd.read_csv(self.timesfits,
-                                         delimiter=delimiter,
-                                         usecols=self.timesfits_columns)
+            if self.get_all_timesfits_columns:
+                self.timesfits = pd.read_csv(self.timesfits,
+                                            delimiter=delimiter)
+            else:
+                self.timesfits = pd.read_csv(self.timesfits,
+                                            delimiter=delimiter,
+                                            usecols=self.timesfits_columns)
         except ValueError:
             raise SunpyUserWarning("Sunspotter Object cannot be created."
                                    " Either the Timesfits columns do not match, or the file is corrupted")
@@ -62,10 +78,16 @@ class Sunspotter:
             raise SunpyUserWarning("Sunspotter Object cannot be created."
                                    " The Timesfits CSV is missing the following columns: " +
                                    missing_columns)
+
+        # Reading the Properties file
         try:
-            self.properties = pd.read_csv(self.properties,
-                                          delimiter=delimiter,
-                                          usecols=self.properties_columns)
+            if self.get_all_properties_columns:
+                self.properties = pd.read_csv(self.properties,
+                                            delimiter=delimiter)
+            else:
+                self.properties = pd.read_csv(self.properties,
+                                            delimiter=delimiter,
+                                            usecols=self.properties_columns)
         except ValueError:
             raise SunpyUserWarning("Sunspotter Object cannot be created."
                                    " Either the Properties columns do not match, or the file is corrupted")
@@ -78,6 +100,7 @@ class Sunspotter:
                                    " The Properties CSV is missing the following columns: " +
                                    missing_columns)
 
+        # Reading the Classification file
         if self.classifications is not None:
 
             if self.classifications_columns is None:
