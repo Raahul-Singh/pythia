@@ -3,7 +3,7 @@ import numpy as np
 from sunpy.util import SunpyUserWarning
 from pathlib import Path
 from sunpy.net import Fido, attrs as a
-from sunpy.map import Map
+from sunpy.map import Map, MapSequence
 
 __all__ = ['Sunspotter']
 
@@ -378,8 +378,7 @@ class Sunspotter:
         ----------
         obsdate : str
             The observation time and date.
-        filepath : [type], optional
-            file path for the file to be downloaded.
+        filepath : mdi_mapsequence : sunpy.map.MapSequence,
             By default downloaded files are stored in `~pythia/data/fulldisk`
 
         Returns
@@ -410,8 +409,7 @@ class Sunspotter:
         ----------
         obsdate : str
             The observation time and date.
-        filepath : [type], optional
-            file path for the file to be downloaded.
+        filepath : mdi_mapsequence : sunpy.map.MapSequence,
             By default downloaded files are stored in `~pythia/data/fulldisk`
 
         Returns
@@ -493,3 +491,39 @@ class Sunspotter:
         end = self.get_nearest_observation(end)
 
         return self.timesfits[start: end].index.unique()
+
+    def get_mdi_map_sequence(self, start: str, end: str, filepath: str = str(path) + "/fulldisk/"):
+        """
+        Get MDI Map Sequence for observations from given range.
+
+        Parameters
+        ----------
+        start : str
+            The starting observation time and date.
+        end : str
+            The ending observation time and date.
+        filepath : str, optional
+            [description], by default str(path)+"/fulldisk/"
+
+        Returns
+        -------
+        mdi_mapsequence : sunpy.map.MapSequence
+            Map Sequece of the MDI maps in the given range.
+
+        Examples
+        --------
+        >>> from pythia.seo import Sunspotter
+        >>> sunspotter = Sunspotter()
+        >>> start = '2000-01-01 12:47:02'
+        >>> end = '2000-01-05 12:51:02'
+        >>> sunspotter.get_mdi_map_sequence(start, end)
+        <sunpy.map.mapsequence.MapSequence object at 0x7f2c7b85cda0>
+        MapSequence of 5 elements, with maps from MDIMap
+        """
+        obsrange = self.get_available_obsdatetime_range(start, end)
+        maplist = []
+        
+        for obsdate in obsrange:
+            maplist.append(self.get_mdi_fulldisk_map(obsdate, filepath))
+
+        return MapSequence(maplist)
