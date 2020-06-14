@@ -610,6 +610,7 @@ class Sunspotter:
         >>> from pythia.seo import Sunspotter
         >>> sunspotter = Sunspotter()
         >>> obsdate = '2000-01-01 12:47:02'
+        >>> sunspotter.get_observations_from_hek(obsdate)
         <HEKTable length=5>
                  SOL_standard          absnetcurrenthelicity ... unsignedvertcurrent
                     str30                      object        ...        object
@@ -646,6 +647,13 @@ class Sunspotter:
             The MDI map corresponding to the given observation,
             If None, the Map will be downloaded first.
             By default None.
+
+        Examples
+        --------
+        >>> from pythia.seo import Sunspotter
+        >>> sunspotter = Sunspotter()
+        >>> obsdate = '2000-01-01 12:47:02'
+        >>> sunspotter.plot_observations(obsdate)
         """
         obsdate = self.get_nearest_observation(obsdate)
 
