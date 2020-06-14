@@ -1,6 +1,7 @@
-import pytest
 import datetime
 from pathlib import Path
+
+import pytest
 from pythia.cleaning import MidnightRotation
 from pythia.seo import Sunspotter
 

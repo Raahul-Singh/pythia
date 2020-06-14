@@ -5,13 +5,12 @@ import astropy.units as u
 import matplotlib.pyplot as plt
 import pandas as pd
 from astropy.coordinates import SkyCoord
+from pythia.cleaning import MidnightRotation
 from sunpy.map import Map, MapSequence
 from sunpy.net import Fido
 from sunpy.net import attrs as a
 from sunpy.net import hek
 from sunpy.util import SunpyUserWarning
-from pythia.cleaning import MidnightRotation
-import astropy.units as u
 
 __all__ = ['Sunspotter']
 
@@ -745,7 +744,6 @@ class Sunspotter:
         <Longitude [5.28433062] deg>,
         <Longitude [4.82622275] deg>]
         """
-        rotator = MidnightRotation()
         longitudes = []
 
         for obsdate in obslist:

@@ -1,8 +1,7 @@
-import pandas as pd
-import astropy.units as u
 import datetime
-from sunpy.physics.differential_rotation import diff_rot
 
+import astropy.units as u
+from sunpy.physics.differential_rotation import diff_rot
 
 __all__ = ['MidnightRotation']
 
