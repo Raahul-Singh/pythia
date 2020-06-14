@@ -1,2 +1,4 @@
-sunpy
-pandas
+sunpy>=2.0.0
+pandas>=1.0.4
+beautifulsoup4>=4.9.1
+numpy>=1.18.5
