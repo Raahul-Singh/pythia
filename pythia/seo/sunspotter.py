@@ -345,7 +345,7 @@ class Sunspotter:
         unique_dates = self.timesfits.index.unique()
         index = unique_dates.get_loc(obsdate, method='nearest')
         nearest_date = str(unique_dates[index])
-        if nearest_date != str(obsdate): # casting to str because obsdate can be a pandas.Timestamp
+        if nearest_date != str(obsdate):  # casting to str because obsdate can be a pandas.Timestamp
             warnings.warn(SunpyUserWarning("The given observation date isn't in the Timesfits file.\n"
                                            "Using the observation nearest to the given obsdate instead."))
         return nearest_date
@@ -586,7 +586,7 @@ class Sunspotter:
         return MapSequence(maplist)
 
     def get_observations_from_hek(self, obsdate: str, event_type: str = 'AR',
-                                  observatory: str= 'SOHO'):
+                                  observatory: str = 'SOHO'):
         """
         Gets the observation metadata from HEK for the given obsdate.
         By default gets Active Region data recieved from SOHO.
@@ -623,7 +623,7 @@ class Sunspotter:
         obsdate = self.get_nearest_observation(obsdate)
 
         client = hek.HEKClient()
-        result = client.search(hek.attrs.Time(obsdate, obsdate),hek.attrs.EventType(event_type))
+        result = client.search(hek.attrs.Time(obsdate, obsdate), hek.attrs.EventType(event_type))
 
         obsdate = "T".join(str(obsdate).split())
 
@@ -669,15 +669,15 @@ class Sunspotter:
                                     for i in range(number_of_observations)],
                                     frame=mdi_map.coordinate_frame)
 
-        fig = plt.figure(figsize=(12,10),dpi=100)
+        fig = plt.figure(figsize=(12, 10), dpi=100)
         mdi_map.plot()
 
         for i in range(number_of_observations):
             mdi_map.draw_rectangle(bottom_left_coords[i],
                                    top_right=top_right_coords[i],
-                                   color='b', label = "Active Regions")
+                                   color='b', label="Active Regions")
 
-        hek_legend, = plt.plot([], color='b', label = "Active Regions")
+        hek_legend, = plt.plot([], color='b', label="Active Regions")
 
         plt.legend(handles=[hek_legend])
         plt.show()
