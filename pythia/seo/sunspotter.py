@@ -71,11 +71,11 @@ class Sunspotter:
         try:
             if self.get_all_timesfits_columns:
                 self.timesfits = pd.read_csv(self.timesfits,
-                                            delimiter=delimiter)
+                                             delimiter=delimiter)
             else:
                 self.timesfits = pd.read_csv(self.timesfits,
-                                            delimiter=delimiter,
-                                            usecols=self.timesfits_columns)
+                                             delimiter=delimiter,
+                                             usecols=self.timesfits_columns)
         except ValueError:
             raise SunpyUserWarning("Sunspotter Object cannot be created."
                                    " Either the Timesfits columns do not match, or the file is corrupted")
@@ -97,11 +97,11 @@ class Sunspotter:
         try:
             if self.get_all_properties_columns:
                 self.properties = pd.read_csv(self.properties,
-                                            delimiter=delimiter)
+                                              delimiter=delimiter)
             else:
                 self.properties = pd.read_csv(self.properties,
-                                            delimiter=delimiter,
-                                            usecols=self.properties_columns)
+                                              delimiter=delimiter,
+                                              usecols=self.properties_columns)
         except ValueError:
             raise SunpyUserWarning("Sunspotter Object cannot be created."
                                    " Either the Properties columns do not match, or the file is corrupted")
@@ -312,7 +312,7 @@ class Sunspotter:
         """
         return self.timesfits.loc[obsdate].shape[0]
 
-    def get_nearest_observation(self, obsdate : str):
+    def get_nearest_observation(self, obsdate: str):
         """
         Returns the observation time and date in the Timesfits that is
         closest to the given observation time and date.
@@ -340,7 +340,7 @@ class Sunspotter:
         index = unique_dates.get_loc(obsdate, method='nearest')
         return str(unique_dates[index])
 
-    def get_all_observations_ids_in_range(self, start : str, end : str):
+    def get_all_observations_ids_in_range(self, start: str, end: str):
         """
         Returns all the observations ids in the given timerange.
         The nearest start and end time in the Timesfits are used
@@ -372,7 +372,7 @@ class Sunspotter:
         end = self.get_nearest_observation(end)
         return self.timesfits[start:end]['#id'].values
 
-    def get_fits_filenames_from_range(self, start : str, end : str):
+    def get_fits_filenames_from_range(self, start: str, end: str):
         """
         Returns all the FITS filenames for observations in the given timerange.
         The nearest start and end time in the Timesfits are used to form the
