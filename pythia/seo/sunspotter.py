@@ -114,6 +114,9 @@ class Sunspotter:
                                    " The Properties CSV is missing the following columns: " +
                                    missing_columns)
 
+        if '#id' in self.properties.columns:
+            self.properties.set_index("#id", inplace=True)
+
         # Reading the Classification file
         if self.classifications is not None:
 
@@ -201,19 +204,40 @@ class Sunspotter:
 
         Returns
         -------
-        properties : pandas.DataFrame
+        properties : pandas.Series
             The observed properties for the given Sunspotter id.
 
         Examples
         --------
         >>> from pythia.seo import Sunspotter
         >>> sunspotter = Sunspotter()
-        >>> sunspotter.get_properties(1)
-            #id                      filename zooniverse_id  ...  pxpos_y  sszn  zurich
-        0    1  530be1183ae74079c300000d.jpg    ASZ000090y  ...  166.877     1     bxo
-        [1 rows x 23 columns]
+        >>> idx = 0
+        >>> sunspotter.get_properties(idx)
+        filename         530be1183ae74079c300000d.jpg
+        zooniverse_id                      ASZ000090y
+        angle                                 37.8021
+        area                                    34400
+        areafrac                                 0.12
+        areathesh                                2890
+        bipolesep                                3.72
+        c1flr24hr                                   0
+        id_filename                                 1
+        flux                                 2.18e+22
+        fluxfrac                                 0.01
+        hale                                     beta
+        hcpos_x                                452.27
+        hcpos_y                                443.93
+        m1flr12hr                                   0
+        m5flr12hr                                   0
+        n_nar                                       1
+        noaa                                     8809
+        pxpos_x                               229.193
+        pxpos_y                               166.877
+        sszn                                        1
+        zurich                                    bxo
+        Name: 1, dtype: object
         """
-        return self.properties[self.properties.id_filename == idx]
+        return self.properties.loc[idx]
 
     def get_properties_from_obsdate(self, obsdate: str):
         """
@@ -235,8 +259,29 @@ class Sunspotter:
         >>> sunspotter = Sunspotter()
         >>> obsdate = '2000-01-01 12:47:02'
         >>> sunspotter.get_properties_from_obsdate(obsdate)
-            #id                      filename zooniverse_id  ...  pxpos_y  sszn  zurich
-        0    1  530be1183ae74079c300000d.jpg    ASZ000090y  ...  166.877     1     bxo
+        filename         530be1183ae74079c300000d.jpg
+        zooniverse_id                      ASZ000090y
+        angle                                 37.8021
+        area                                    34400
+        areafrac                                 0.12
+        areathesh                                2890
+        bipolesep                                3.72
+        c1flr24hr                                   0
+        id_filename                                 1
+        flux                                 2.18e+22
+        fluxfrac                                 0.01
+        hale                                     beta
+        hcpos_x                                452.27
+        hcpos_y                                443.93
+        m1flr12hr                                   0
+        m5flr12hr                                   0
+        n_nar                                       1
+        noaa                                     8809
+        pxpos_x                               229.193
+        pxpos_y                               166.877
+        sszn                                        1
+        zurich                                    bxo
+        Name: 1, dtype: object
         [1 rows x 23 columns]
         """
         return self.get_properties(self.get_timesfits_id(obsdate))
@@ -521,6 +566,7 @@ class Sunspotter:
         <sunpy.map.mapsequence.MapSequence object at 0x7f2c7b85cda0>
         MapSequence of 5 elements, with maps from MDIMap
         """
+        # TODO: Test this!
         obsrange = self.get_available_obsdatetime_range(start, end)
         maplist = []
 

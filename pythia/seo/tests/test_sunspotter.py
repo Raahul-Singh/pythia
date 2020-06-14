@@ -67,6 +67,9 @@ def test_sunspotter_no_parameters():
     sunspotter.timesfits.reset_index(inplace=True)
     sunspotter.timesfits.obs_date = sunspotter.timesfits.obs_date.dt.strftime('%Y-%m-%d %H:%M:%S')
 
+    # To get #id back a column of dtype int
+    sunspotter.properties.reset_index(inplace=True)
+
     # Sorting columns as the order of Columns shouldn't matter
     assert sunspotter.timesfits.sort_index(axis=1).equals(timesfits.sort_index(axis=1))
     assert sunspotter.properties.sort_index(axis=1).equals(properties.sort_index(axis=1))
@@ -154,11 +157,13 @@ def test_get_all_ids_for_observation(sunspotter, obsdate):
 
 
 def test_get_properties(sunspotter, properties):
-    assert sunspotter.get_properties(1).equals(properties)
+    properties.set_index("#id", inplace=True)
+    assert sunspotter.get_properties(1).equals(properties.iloc[0])
 
 
 def test_get_properties_from_obsdate(sunspotter, obsdate, properties):
-    assert sunspotter.get_properties_from_obsdate(obsdate).equals(properties)
+    properties.set_index("#id", inplace=True)
+    assert sunspotter.get_properties_from_obsdate(obsdate).equals(properties.iloc[0])
 
 
 def test_number_of_observations(sunspotter, obsdate):
