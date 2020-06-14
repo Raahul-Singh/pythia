@@ -1,0 +1,2 @@
+Makes the Sunspotter Object that holds the basic 
+functions that can be used for data analysis.
