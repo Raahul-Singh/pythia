@@ -176,7 +176,8 @@ def test_number_of_observations(sunspotter, obsdate):
                           ('1999-01-01 00:00:00', '2000-01-01 12:47:02'),
                           ('2100-01-01 00:00:00', '2005-12-31 12:48:02')])
 def test_get_nearest_observation(sunspotter, obsdate, closest_date):
-    assert sunspotter.get_nearest_observation(obsdate) == closest_date
+    with pytest.warns(SunpyUserWarning):
+        assert sunspotter.get_nearest_observation(obsdate) == closest_date
 
 
 def test_get_all_observations_ids_in_range(sunspotter):

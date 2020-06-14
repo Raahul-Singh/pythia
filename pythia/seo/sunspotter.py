@@ -1,9 +1,14 @@
+import warnings
 from pathlib import Path
 
+import astropy.units as u
+import matplotlib.pyplot as plt
 import pandas as pd
+from astropy.coordinates import SkyCoord
 from sunpy.map import Map, MapSequence
 from sunpy.net import Fido
 from sunpy.net import attrs as a
+from sunpy.net import hek
 from sunpy.util import SunpyUserWarning
 
 __all__ = ['Sunspotter']
@@ -339,7 +344,11 @@ class Sunspotter:
         """
         unique_dates = self.timesfits.index.unique()
         index = unique_dates.get_loc(obsdate, method='nearest')
-        return str(unique_dates[index])
+        nearest_date = str(unique_dates[index])
+        if nearest_date != str(obsdate):  # casting to str because obsdate can be a pandas.Timestamp
+            warnings.warn(SunpyUserWarning("The given observation date isn't in the Timesfits file.\n"
+                                           "Using the observation nearest to the given obsdate instead."))
+        return nearest_date
 
     def get_all_observations_ids_in_range(self, start: str, end: str):
         """
@@ -575,3 +584,100 @@ class Sunspotter:
             maplist.append(self.get_mdi_fulldisk_map(obsdate, filepath))
 
         return MapSequence(maplist)
+
+    def get_observations_from_hek(self, obsdate: str, event_type: str = 'AR',
+                                  observatory: str = 'SOHO'):
+        """
+        Gets the observation metadata from HEK for the given obsdate.
+        By default gets Active Region data recieved from SOHO.
+
+        Parameters
+        ----------
+        obsdate : str
+            The observation time and date.
+        event_type : str, optional
+            The type of Event, by default 'AR'
+        observatory : str, optional
+            Observatory that observed the Event, by default 'SOHO'
+
+        Returns
+        -------
+        results = sunpy.hek.HEKTable
+            The table of results recieved from HEK.
+
+        Examples
+        --------
+        >>> from pythia.seo import Sunspotter
+        >>> sunspotter = Sunspotter()
+        >>> obsdate = '2000-01-01 12:47:02'
+        <HEKTable length=5>
+                 SOL_standard          absnetcurrenthelicity ... unsignedvertcurrent
+                    str30                      object        ...        object
+        ------------------------------ --------------------- ... -------------------
+        SOL2000-01-01T09:35:02L054C117                  None ...                None
+        SOL2000-01-01T09:35:02L058C100                  None ...                None
+        SOL2000-01-01T09:35:02L333C106                  None ...                None
+        SOL2000-01-01T09:35:02L033C066                  None ...                None
+        SOL2000-01-01T09:35:02L012C054                  None ...                None
+        """
+        obsdate = self.get_nearest_observation(obsdate)
+
+        client = hek.HEKClient()
+        result = client.search(hek.attrs.Time(obsdate, obsdate), hek.attrs.EventType(event_type))
+
+        obsdate = "T".join(str(obsdate).split())
+
+        result = result[result['obs_observatory'] == 'SOHO']
+        result = result[result['event_starttime'] <= obsdate]
+        result = result[result['event_endtime'] > obsdate]
+
+        return result
+
+    def plot_observations(self, obsdate: str, mdi_map: Map = None):
+        """
+        Plots the Active Regions for a given observation on the
+        MDI map corresponding to that observation.
+
+        Parameters
+        ----------
+        obsdate : str
+            The observation time and date.
+        mdi_map : Map, optional
+            The MDI map corresponding to the given observation,
+            If None, the Map will be downloaded first.
+            By default None.
+        """
+        obsdate = self.get_nearest_observation(obsdate)
+
+        if mdi_map is None:
+            mdi_map = self.get_mdi_fulldisk_map(obsdate)
+
+        hek_result = self.get_observations_from_hek(obsdate)
+
+        bottom_left_x = hek_result['boundbox_c1ll']
+        bottom_left_y = hek_result['boundbox_c2ll']
+        top_right_x = hek_result['boundbox_c1ur']
+        top_right_y = hek_result['boundbox_c2ur']
+
+        number_of_observations = len(hek_result)
+
+        bottom_left_coords = SkyCoord([(bottom_left_x[i], bottom_left_y[i]) * u.arcsec
+                                      for i in range(number_of_observations)],
+                                      frame=mdi_map.coordinate_frame)
+
+        top_right_coords = SkyCoord([(top_right_x[i], top_right_y[i]) * u.arcsec
+                                    for i in range(number_of_observations)],
+                                    frame=mdi_map.coordinate_frame)
+
+        fig = plt.figure(figsize=(12, 10), dpi=100)
+        mdi_map.plot()
+
+        for i in range(number_of_observations):
+            mdi_map.draw_rectangle(bottom_left_coords[i],
+                                   top_right=top_right_coords[i],
+                                   color='b', label="Active Regions")
+
+        hek_legend, = plt.plot([], color='b', label="Active Regions")
+
+        plt.legend(handles=[hek_legend])
+        plt.show()
