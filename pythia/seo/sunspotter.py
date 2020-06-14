@@ -1,9 +1,10 @@
-import pandas as pd
-import numpy as np
-from sunpy.util import SunpyUserWarning
 from pathlib import Path
-from sunpy.net import Fido, attrs as a
+
+import pandas as pd
 from sunpy.map import Map, MapSequence
+from sunpy.net import Fido
+from sunpy.net import attrs as a
+from sunpy.util import SunpyUserWarning
 
 __all__ = ['Sunspotter']
 
@@ -12,7 +13,7 @@ path = Path(__file__).parent.parent.parent / "data/all_clear"
 class Sunspotter:
 
     def __init__(self, *, timesfits: str = path / "lookup_timesfits.csv", get_all_timesfits_columns: bool = True,
-                 properties: str = path / "lookup_properties.csv", get_all_properties_columns: bool = True, 
+                 properties: str = path / "lookup_properties.csv", get_all_properties_columns: bool = True,
                  timesfits_columns: list = ['#id'], properties_columns: list = ['#id'],
                  classifications=None, classifications_columns=None,
                  delimiter: str = ';', datetime_fmt: str = '%Y-%m-%d %H:%M:%S'):
@@ -176,7 +177,7 @@ class Sunspotter:
         Returns
         -------
         ids : pandas.Series
-            All the Sunspotter observation ids for the 
+            All the Sunspotter observation ids for the
             given observation date and time.
 
         Examples
@@ -329,7 +330,7 @@ class Sunspotter:
     def get_fits_filenames_from_range(self, start : str, end : str):
         """
         Returns all the FITS filenames for observations in the given timerange.
-        The nearest start and end time in the Timesfits are used to form the 
+        The nearest start and end time in the Timesfits are used to form the
         time range.
 
         Parameters
@@ -437,7 +438,7 @@ class Sunspotter:
         Coordinate System:	 helioprojective
         Scale:			 [1.98083342 1.98083342] arcsec / pix
         Reference Pixel:	 [511.36929067 511.76453018] pix
-        Reference Coord:	 [0. 0.] arcsec                   
+        Reference Coord:	 [0. 0.] arcsec
         array([[nan, nan, nan, ..., nan, nan, nan],
             [nan, nan, nan, ..., nan, nan, nan],
             [nan, nan, nan, ..., nan, nan, nan],
@@ -522,7 +523,7 @@ class Sunspotter:
         """
         obsrange = self.get_available_obsdatetime_range(start, end)
         maplist = []
-        
+
         for obsdate in obsrange:
             maplist.append(self.get_mdi_fulldisk_map(obsdate, filepath))
 
