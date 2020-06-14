@@ -171,6 +171,7 @@ class Sunspotter:
         >>> sunspotter.get_timesfits_id(obsdate)
         1
         """
+        obsdate = self.get_nearest_observation(obsdate)
         return self.timesfits.loc[obsdate].get(key='#id').iloc[0]
 
     def get_all_ids_for_observation(self, obsdate: str):
@@ -197,6 +198,7 @@ class Sunspotter:
         >>> sunspotter.get_all_ids_for_observation(obsdate)
         array([1, 2, 3, 4, 5])
         """
+        obsdate = self.get_nearest_observation(obsdate)
         return self.timesfits.loc[obsdate].get(key='#id').values
 
     def get_properties(self, idx: int):
