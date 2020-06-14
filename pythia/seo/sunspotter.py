@@ -8,7 +8,7 @@ from sunpy.util import SunpyUserWarning
 
 __all__ = ['Sunspotter']
 
-path = Path(__file__).parent.parent.parent / "data/all_clear"
+path = Path.cwd() / "data/all_clear"
 
 class Sunspotter:
 
