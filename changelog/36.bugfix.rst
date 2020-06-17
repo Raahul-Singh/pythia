@@ -1,0 +1,1 @@
+Fixes relative path errors when Sunspotter loads the All Clear data in the repository.
