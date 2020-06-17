@@ -13,8 +13,7 @@ from sunpy.util import SunpyUserWarning
 
 __all__ = ['Sunspotter']
 
-absolute_path = Path(__file__).parent.parent.parent / "data/all_clear"
-path = absolute_path.relative_to(Path.cwd())
+path = Path(__file__).parent.parent.parent / "data/all_clear"
 
 class Sunspotter:
 
