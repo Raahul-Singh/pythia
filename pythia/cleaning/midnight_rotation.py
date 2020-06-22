@@ -72,9 +72,7 @@ class MidnightRotation:
         -42422
         """
         timedifference = datetime.datetime.strptime(obsdate, fmt) - self.get_nearest_midnight(obsdate, fmt)
-        if timedifference.days < 0:
-            return 86400 - timedifference.seconds
-        return -1 * timedifference.seconds
+        return timedifference.total_seconds()
 
     def get_longitude_at_nearest_midnight(self, seconds_to_midnight: u.s, latitude: u.deg, **kwargs):
         """

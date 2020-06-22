@@ -744,9 +744,4 @@ class Sunspotter:
         <Longitude [5.28433062] deg>,
         <Longitude [4.82622275] deg>]
         """
-        longitudes = []
-
-        for obsdate in obslist:
-            longitudes.append(self.rotate_to_midnight(obsdate))
-
-        return longitudes
+        return [self.rotate_to_midnight(obsdate) for obsdate in obslist]
