@@ -36,11 +36,11 @@ def test_nearest_midnight(midnight_rotation, obsdate, nearest_midnight):
 
 
 @pytest.mark.parametrize('obsdate,seconds_to_nearest_midnight',
-                         [('2000-02-28 12:51:02', 40138),
-                          ('2000-01-01 11:47:02', -42422),
-                          ('2000-01-24 12:00:00', 43200),
-                          ('2010-01-18 10:51:02', -39062),
-                          ('2000-03-31 12:47:02', 40378),
-                          ('2000-11-25 12:51:02', 40138)])
+                         [('2000-02-28 12:51:02', 40138.0),
+                          ('2000-01-01 11:47:02', -42422.0),
+                          ('2000-01-24 12:00:00', 43200.0),
+                          ('2010-01-18 10:51:02', -39062.0),
+                          ('2000-03-31 12:47:02', 40378.0),
+                          ('2000-11-25 12:51:02', 40138.0)])
 def test_seconds_to_nearest_midnight(midnight_rotation, obsdate, seconds_to_nearest_midnight):
     assert midnight_rotation.get_seconds_to_nearest_midnight(obsdate) == seconds_to_nearest_midnight

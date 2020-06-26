@@ -71,19 +71,22 @@ class MidnightRotation:
         >>> midnight_rotation.get_seconds_to_nearest_midnight(obsdate)
         -42422
         """
-        timedifference = datetime.datetime.strptime(obsdate, fmt) - self.get_nearest_midnight(obsdate, fmt)
+        timedifference = self.get_nearest_midnight(obsdate, fmt) -  datetime.datetime.strptime(obsdate, fmt)
         return timedifference.total_seconds()
 
-    def get_longitude_at_nearest_midnight(self, seconds_to_midnight: u.s, latitude: u.deg, **kwargs):
+    def get_longitude_at_nearest_midnight(self, obsdate: str, latitude: u.deg,
+                                          fmt='%Y-%m-%d %H:%M:%S', **kwargs):
         """
-        Returns the Longitude at midnight, for a given Latitude and time to nearest midnight.
+        Returns the Longitude at midnight, for a given Latitude and observation date.
 
         Parameters
         ----------
-        seconds_to_midnight : u.s
-            Seconds to nearest midnight.
+        obsdate : str
+            The observation time and date.
         latitude : u.deg
             latitude of the observation
+        fmt : str, optional
+            The format in which obsdate is represented, by default '%Y-%m-%d %H:%M:%S'
         kwags : dict
             Keyword arguments passed to `~sunpy.physics.differential_rotation.diff_rot`
 
@@ -100,10 +103,9 @@ class MidnightRotation:
         >>> latitude = 443.92976 * u.deg
         >>> latitude
         <Quantity 443.92976 deg>
-        >>> seconds = 40378 * u.s
-        >>> seconds
-        <Quantity 40378. s>
-        >>> midnight_rotation.get_longitude_at_nearest_midnight(seconds, latitude)
+        >>> obsdate = '2000-01-01 12:47:02'
+        >>> midnight_rotation.get_longitude_at_nearest_midnight(obsdate, latitude)
         <Longitude 4.87918286 deg>
         """
+        seconds_to_midnight = self.get_seconds_to_nearest_midnight(obsdate, fmt=fmt)
         return diff_rot(seconds_to_midnight, latitude, **kwargs)
