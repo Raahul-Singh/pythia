@@ -22,8 +22,6 @@ def sunspotter(properties_columns, timesfits_columns):
                       properties_columns=properties_columns)
 
 
-
-
 @pytest.mark.parametrize('obsdate,nearest_midnight',
                          [('2000-02-29 12:51:02', datetime.datetime(2000, 3, 1, 0, 0)),
                           ('2000-01-01 11:47:02', datetime.datetime(2000, 1, 1, 0, 0)),
