@@ -137,3 +137,7 @@ htmlcov/
 
 # VS Code
 .vscode
+
+
+# fits files
+*.fits
