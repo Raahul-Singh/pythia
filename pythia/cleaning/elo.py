@@ -55,8 +55,7 @@ class ELO:
             missing_columns = ", ".join(missing_columns)
 
             raise SunpyUserWarning("The following columns mentioned in the column map"
-                                   " are not present in the score board: " +
-                                   missing_columns)
+                                   f" are not present in the score board: {missing_columns}")
 
         self._create_ranking()
 
