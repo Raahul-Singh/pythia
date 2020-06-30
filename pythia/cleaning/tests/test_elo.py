@@ -29,7 +29,7 @@ def elo():
                           (1550, 1854.5, 0.14768898365874825),
                           (1600, 2208.0, 0.029314241270450396)])
 def test_expected_score(elo, rating_0, rating_1, expected_score):
-    assert elo.expected_score(rating_0, rating_1) == expected_score
+    assert pytest.approx(elo.expected_score(rating_0, rating_1)) == expected_score
 
 
 @pytest.mark.parametrize('rating_for_image,k_value,score_for_image,image_expected_score,new_rating',
@@ -44,7 +44,7 @@ def test_expected_score(elo, rating_0, rating_1, expected_score):
                           (1854.5, 32, 0, 0.8523110163412517, 1827.2260474770799),
                           (2208.0, 32, 0, 0.9706857587295497, 2176.9380557206546)])
 def test_new_rating(elo, rating_for_image, k_value, score_for_image, image_expected_score, new_rating):
-    assert elo.new_rating(rating_for_image, k_value, score_for_image, image_expected_score) == new_rating
+    assert pytest.approx(elo.new_rating(rating_for_image, k_value, score_for_image, image_expected_score)), new_rating
 
 
 def test_column_map(elo):
