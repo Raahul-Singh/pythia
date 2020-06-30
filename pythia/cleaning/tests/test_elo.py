@@ -1,7 +1,7 @@
-import pytest
-import pandas as pd
-from pythia.cleaning import ELO
 from pathlib import Path
+
+import pytest
+from pythia.cleaning import ELO
 from pythia.seo import Sunspotter
 from sunpy.util import SunpyUserWarning
 

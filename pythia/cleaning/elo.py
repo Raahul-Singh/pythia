@@ -1,8 +1,8 @@
-import pandas as pd
-import numpy as np
 from collections import deque
-from sunpy.util import SunpyUserWarning
 
+import numpy as np
+import pandas as pd
+from sunpy.util import SunpyUserWarning
 
 __all__ = ['ELO']
 
