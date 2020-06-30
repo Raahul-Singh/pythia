@@ -55,8 +55,7 @@ class ELO:
             missing_columns = ", ".join(missing_columns)
 
             raise SunpyUserWarning("The following columns mentioned in the column map"
-                                   " are not present in the score board: " +
-                                   missing_columns)
+                                   f" are not present in the score board: {missing_columns}")
 
         self._create_ranking()
 
@@ -147,32 +146,8 @@ class ELO:
                                                self.rankings.loc[image_1]['score'])
         expected_score_1 = 1 - expected_score_0
 
-        new_rating_0 = self.new_rating(self.rankings.loc[image_0]['score'], self.rankings.loc[image_0]['k value'],
-                                       score_for_image_0, expected_score_0)
-        new_rating_1 = self.new_rating(self.rankings.loc[image_1]['score'], self.rankings.loc[image_1]['k value'],
-                                       1 - score_for_image_0, expected_score_1)
-
-        state_dict_0['last scores'].append(new_rating_0)
-        state_dict_1['last scores'].append(new_rating_1)
-
-        new_std_dev_0 = min(np.std(state_dict_0['last scores']), 1_000_000)  # prevents Infinity
-        new_k_0 = min(max(new_std_dev_0, self.score_change['min']), self.score_change['max'])
-
-        new_std_dev_1 = min(np.std(state_dict_1['last scores']), 1_000_000)  # prevents Infinity
-        new_k_1 = min(max(new_std_dev_1, self.score_change['min']), self.score_change['max'])
-
-        # Updating Data
-        state_dict_0['score'] = new_rating_0
-        state_dict_0['std dev'] = new_std_dev_0
-        state_dict_0['k value'] = new_k_0
-        state_dict_0['count'] += 1
-        state_dict_0['last scores'] = ",".join(map(str,state_dict_0['last scores']))  # Storing the list of states as a String
-
-        state_dict_1['score'] = new_rating_1
-        state_dict_1['std dev'] = new_std_dev_1
-        state_dict_1['k value'] = new_k_1
-        state_dict_1['count'] += 1
-        state_dict_1['last scores'] = ",".join(map(str,state_dict_1['last scores']))  # Storing the list of states as a String
+        _update_state_dict(state_dict_0, image_0, expected_score_0, score_for_image_0)
+        _update_state_dict(state_dict_1, image_1, expected_score_1, 1 - score_for_image_0)
 
         # Making the Update DataFrames
         update_df = pd.DataFrame([state_dict_0, state_dict_1])
@@ -180,6 +155,19 @@ class ELO:
 
         # Updating the original DataFrame
         self.rankings.update(update_df)
+
+    def _update_state_dict(state_dict, image, expected_score, score):
+        new_rating = self.new_rating(self.rankings.loc[image]['score'], self.rankings.loc[image]['k value'],
+                                       score, expected_score)
+        state_dict['last scores'].append(new_rating)
+        new_std_dev = min(np.std(state_dict['last scores']), 1_000_000)  # prevents Infinity
+        new_k = min(max(new_std_dev, self.score_change['min']), self.score_change['max'])
+        # Updating Data
+        state_dict['score'] = new_rating
+        state_dict['std dev'] = new_std_dev
+        state_dict['k value'] = new_k
+        state_dict['count'] += 1
+        state_dict['last scores'] = ",".join(map(str, state_dict['last scores']))  # Storing the list of states as a String
 
     def run(self, save_to_disk=True, filename='run_results.csv'):
         """
