@@ -5,14 +5,14 @@ from pythia.cleaning import ELO
 from pythia.seo import Sunspotter
 from sunpy.util import SunpyUserWarning
 
-path = Path(__file__).resolve().parent.parent.parent.parent / "data/elo_test"
+path = Path(__file__).parent.parent.parent.parent / "data/all_clear"
 
 
 @pytest.fixture
 def elo():
-    sunspotter = Sunspotter(timesfits=path / "../all_clear/lookup_timesfits.csv",
-                            properties=path / "../all_clear/lookup_properties.csv",
-                            classifications=path / "test_classifications.csv",
+    sunspotter = Sunspotter(timesfits=path / "lookup_timesfits.csv",
+                            properties=path / "lookup_properties.csv",
+                            classifications= Path(__file__).parent / "test_classifications.csv",
                             classifications_columns=['image_id_0', 'image_id_1',
                                                      'image0_more_complex_image1'])
     column_map = {"player 0": "image_id_0",
@@ -53,9 +53,9 @@ def test_column_map(elo):
 
 def test_incorrect_column_map():
 
-    sunspotter = Sunspotter(timesfits=path / "../all_clear/lookup_timesfits.csv",
-                            properties=path / "../all_clear/lookup_properties.csv",
-                            classifications=path / "test_classifications.csv",
+    sunspotter = Sunspotter(timesfits=path / "lookup_timesfits.csv",
+                            properties=path / "lookup_properties.csv",
+                            classifications=Path(__file__).parent / "test_classifications.csv",
                             classifications_columns=['image_id_0', 'image_id_1',
                                                      'image0_more_complex_image1'])
     column_map = {"player 0": "This is not player 0",
