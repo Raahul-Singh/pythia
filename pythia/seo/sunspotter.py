@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from astropy.coordinates import SkyCoord
 from pythia.cleaning import MidnightRotation
+from sunpy.coordinates import frames
 from sunpy.map import Map, MapSequence
 from sunpy.net import Fido
 from sunpy.net import attrs as a
@@ -20,7 +21,7 @@ class Sunspotter:
 
     def __init__(self, *, timesfits: str = path / "lookup_timesfits.csv", get_all_timesfits_columns: bool = True,
                  properties: str = path / "lookup_properties.csv", get_all_properties_columns: bool = True,
-                 timesfits_columns: list = ['#id'], properties_columns: list = ['#id'],
+                 timesfits_columns: list = ['#id'], properties_columns: list = ['#id', 'id_filename'],
                  classifications=None, classifications_columns=None,
                  delimiter: str = ';', datetime_fmt: str = '%Y-%m-%d %H:%M:%S'):
         """
@@ -42,7 +43,7 @@ class Sunspotter:
             Columns required from lookup_timesfits.csv, by default ['#id']
             Will be overridden if `get_all_timesfits_columns` is True.
         properties_columns : list, optional
-            Columns required from lookup_properties.csv, by default ['#id']
+            Columns required from lookup_properties.csv, by default ['#id', 'id_filename']
             Will be overridden if `get_all_properties_columns` is True.
         classifications : str, optional
             filepath to `classifications.csv`
@@ -120,8 +121,8 @@ class Sunspotter:
                                    " The Properties CSV is missing the following columns: " +
                                    missing_columns)
 
-        if '#id' in self.properties.columns:
-            self.properties.set_index("#id", inplace=True)
+        if 'id_filename' in self.properties.columns:
+            self.properties.set_index("id_filename", inplace=True)
 
         # Reading the Classification file
         if self.classifications is not None:
@@ -247,9 +248,55 @@ class Sunspotter:
         """
         return self.properties.loc[idx]
 
-    def get_properties_from_obsdate(self, obsdate: str):
+    def get_first_property_from_obsdate(self, obsdate: str):
         """
         Returns the observed properties for a given observation time and date.
+
+        Parameters
+        ----------
+        obsdate : str
+            The observation time and date.
+
+        Returns
+        -------
+        properties : pandas.Series
+            The observed properties for the given observation time and date.
+
+        Examples
+        --------
+        >>> from pythia.seo import Sunspotter
+        >>> sunspotter = Sunspotter()
+        >>> obsdate = '2000-01-01 12:47:02'
+        >>> sunspotter.get_first_property_from_obsdate(obsdate)
+        #id                                         1
+        filename         530be1183ae74079c300000d.jpg
+        zooniverse_id                      ASZ000090y
+        angle                                 37.8021
+        area                                    34400
+        areafrac                                 0.12
+        areathesh                                2890
+        bipolesep                                3.72
+        c1flr24hr                                   0
+        flux                                 2.18e+22
+        fluxfrac                                 0.01
+        hale                                     beta
+        hcpos_x                                452.27
+        hcpos_y                                443.93
+        m1flr12hr                                   0
+        m5flr12hr                                   0
+        n_nar                                       1
+        noaa                                     8809
+        pxpos_x                               229.193
+        pxpos_y                               166.877
+        sszn                                        1
+        zurich                                    bxo
+        Name: 1, dtype: object
+        """
+        return self.get_properties(self.get_timesfits_id(obsdate))
+
+    def get_all_properties_from_obsdate(self, obsdate: str):
+        """
+        Returns the all observed properties for a given observation time and date.
 
         Parameters
         ----------
@@ -266,33 +313,18 @@ class Sunspotter:
         >>> from pythia.seo import Sunspotter
         >>> sunspotter = Sunspotter()
         >>> obsdate = '2000-01-01 12:47:02'
-        >>> sunspotter.get_properties_from_obsdate(obsdate)
-        filename         530be1183ae74079c300000d.jpg
-        zooniverse_id                      ASZ000090y
-        angle                                 37.8021
-        area                                    34400
-        areafrac                                 0.12
-        areathesh                                2890
-        bipolesep                                3.72
-        c1flr24hr                                   0
-        id_filename                                 1
-        flux                                 2.18e+22
-        fluxfrac                                 0.01
-        hale                                     beta
-        hcpos_x                                452.27
-        hcpos_y                                443.93
-        m1flr12hr                                   0
-        m5flr12hr                                   0
-        n_nar                                       1
-        noaa                                     8809
-        pxpos_x                               229.193
-        pxpos_y                               166.877
-        sszn                                        1
-        zurich                                    bxo
-        Name: 1, dtype: object
-        [1 rows x 23 columns]
+        >>> sunspotter.get_all_properties_from_obsdate(obsdate)
+                     #id                      filename  ... sszn  zurich
+        id_filename                                     ...
+        1              1  530be1183ae74079c300000d.jpg  ...    1     bxo
+        2              2  530be1183ae74079c300000f.jpg  ...    2     fao
+        3              3  530be1183ae74079c3000011.jpg  ...    3     axx
+        4              4  530be1183ae74079c3000013.jpg  ...    4     dro
+        5              5  530be1183ae74079c3000015.jpg  ...    5     hax
+
+        [5 rows x 22 columns]
         """
-        return self.get_properties(self.get_timesfits_id(obsdate))
+        return self.get_properties(self.get_all_ids_for_observation(obsdate))
 
     def number_of_observations(self, obsdate: str):
         """
@@ -692,57 +724,137 @@ class Sunspotter:
         plt.legend(handles=[hek_legend])
         plt.show()
 
-    def rotate_to_midnight(self, obsdate: str, fmt='%Y-%m-%d %H:%M:%S'):
+    def rotate_to_midnight(self, obsdate: str, fmt='%Y-%m-%d %H:%M:%S', **kwargs):
         """
-        Returns the Longitude at midnight, for a given observation time and date.
+        Returns the Longitudes at midnight for all observations,
+        for a given observation time and date.
+
         Parameters
         ----------
         obsdate : str
             The observation time and date.
         fmt : str, optional
             The format in which obsdate is represented, by default '%Y-%m-%d %H:%M:%S'
+        **kwargs : dict
+            Dictionary to be passed to `get_lat_lon_in_hgs` function.
+
         Returns
         -------
-        longitude : u.deg
-            longitude of the observation at midnight.
+        longitudes, latitudes : list of tuples.
+            longitudes and latitudes at midnight of all the observations
+            for the given obsdate.
+
         Examples
         --------
         >>> from pythia.seo import Sunspotter
-        >>> sunspotter = Sunspotter(timesfits="lookup_timefits.csv", properties="lookup_properties.csv")
+        >>> sunspotter = Sunspotter()
         >>> obsdate = '2000-01-01 12:47:02'
         >>> sunspotter.rotate_to_midnight(obsdate)
-        <Longitude [4.87918286] deg>
+        [(<Longitude 6.50176828 deg>, <Latitude 24.37393479 deg>),
+        (<Longitude 6.23906649 deg>, <Latitude 36.4502797 deg>),
+        (<Longitude 6.43015715 deg>, <Latitude -28.26438437 deg>),
+        (<Longitude 6.61003124 deg>, <Latitude -16.47798634 deg>),
+        (<Longitude 6.66228849 deg>, <Latitude 10.3648738 deg>)]
         """
         rotator = MidnightRotation()
-        properties = self.get_properties_from_obsdate(obsdate)
-        latitude = properties['hcpos_y'].values * u.deg
-        time_to_nearest_midnight = rotator.get_seconds_to_nearest_midnight(obsdate) * u.s
-        return rotator.get_longitude_at_nearest_midnight(time_to_nearest_midnight, latitude)
+        _, latitude = self.get_lat_lon_in_hgs(obsdate, **kwargs)
+        rotated = []
+        for lat in latitude:
+            rotated.append((rotator.get_longitude_at_nearest_midnight(obsdate, lat), lat))
+        return rotated
 
     def rotate_list_to_midnight(self, obslist: list, fmt='%Y-%m-%d %H:%M:%S'):
         """
         Returns list of Longitudes at midnight,
         for a given list of observation times and dates.
+
         Parameters
         ----------
         obslist : list
             List of observation times and dates.
         fmt : str, optional
             The format in which each obsdate is represented, by default '%Y-%m-%d %H:%M:%S'
+
         Returns
         -------
-        longitudes : list of u.deg
-            list of Longitudes at midnight, for the given list of observation times and dates.
+        longitudes, latitudes : dict of list of tuples, indexed by obsdate.
+            longitudes and latitudes at midnight of all the observations for all
+            obsdates in the obs_list.
+
         Examples
         --------
         >>> from pythia.seo import Sunspotter
-        >>> sunspotter = Sunspotter(timesfits="lookup_timefits.csv", properties="lookup_properties.csv")
-        >>> obslist = ['2000-01-02 12:51:02', '2000-01-14 12:47:02', '2000-01-18 12:51:02', '2000-01-23 12:47:02', '2000-01-24 12:51:02']
+        >>> sunspotter = Sunspotter()
+        >>> obslist = ['2000-01-02 12:51:02', '2000-01-14 12:47:02']
         >>> sunspotter.rotate_list_to_midnight(obslist)
-        [<Longitude [4.8817556] deg>,
-        <Longitude [5.85374373] deg>,
-        <Longitude [5.15349168] deg>,
-        <Longitude [5.28433062] deg>,
-        <Longitude [4.82622275] deg>]
+        {'2000-01-02 12:51:02': [(<Longitude 6.19998452 deg>,
+           <Latitude 36.52576413 deg>),
+          (<Longitude 6.57180621 deg>, <Latitude -16.37770425 deg>),
+          (<Longitude 6.61932484 deg>, <Latitude 10.87542475 deg>),
+          (<Longitude 6.62367527 deg>, <Latitude 10.21004421 deg>)],
+         '2000-01-14 12:47:02': [(<Longitude 6.59902787 deg>,
+           <Latitude -17.47160603 deg>),
+          (<Longitude 6.45137373 deg>, <Latitude 27.17957675 deg>),
+          (<Longitude 6.33516688 deg>, <Latitude -32.62222324 deg>),
+          (<Longitude 6.6540996 deg>, <Latitude 11.55917 deg>),
+          (<Longitude 6.59865146 deg>, <Latitude 17.50447034 deg>),
+          (<Longitude 6.64433002 deg>, <Latitude -12.83001216 deg>),
+          (<Longitude 6.62074025 deg>, <Latitude 15.44152655 deg>),
+          (<Longitude 6.58919388 deg>, <Latitude -18.30832087 deg>),
+          (<Longitude 6.58187325 deg>, <Latitude 18.90391944 deg>),
+          (<Longitude 6.62674631 deg>, <Latitude -14.82469254 deg>),
+          (<Longitude 6.63042185 deg>, <Latitude -14.43274934 deg>)]}
         """
-        return [self.rotate_to_midnight(obsdate) for obsdate in obslist]
+        obs_dict = {}
+        for obsdate in obslist:
+            obs_dict[obsdate] = self.rotate_to_midnight(obsdate)
+        return obs_dict
+
+    def hpc_to_hgs_position(self, obsdate: str, get_nearest=True):
+        """
+        Transforms the lat lon for all observations corresponding to a given obsdate
+        from Helioprojective frame to HeliographicStonyhurst frame.
+
+        Parameters
+        ----------
+        obsdate : str
+            The observation time and date.
+        get_nearest : bool, optional
+            Get the obsdate in the loaded dataset closest to the given obsdate
+            by default True.
+
+        Returns
+        -------
+        frame : sunpy.coordinates.frames.HeliographicStonyhurst
+            HGS frame for all the observations for the given obsdate.
+        """
+        if get_nearest:
+            obsdate = self.get_nearest_observation(obsdate)
+
+        obs = self.get_all_properties_from_obsdate(obsdate)
+        hpc_frame = frames.Helioprojective(Tx=obs.hcpos_x * u.arcsec,
+                                           Ty=obs.hcpos_y * u.arcsec,
+                                           obstime=obsdate, observer='earth')
+        return hpc_frame.transform_to(frames.HeliographicStonyhurst)
+
+    def get_lat_lon_in_hgs(self, obsdate, get_nearest=True):
+        """
+        Returns the Latitude and Longitude for all the observations
+        in HeliographicStonyhurst frame, for a given obsdate.
+
+        Parameters
+        ----------
+        obsdate : str
+            The observation time and date.
+        get_nearest : bool, optional
+            Get the obsdate in the loaded dataset closest to the given obsdate
+            by default True.
+
+        Returns
+        -------
+        (lon, lat) : tuple
+            Tuple of the Longitude and Latitude for all observations for a given obsdate,
+            in HeliographicStonyhurst frame.
+        """
+        hgs_frame = self.hpc_to_hgs_position(obsdate, get_nearest)
+        return hgs_frame.lon, hgs_frame.lat

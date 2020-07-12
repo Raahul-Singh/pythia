@@ -107,5 +107,5 @@ class MidnightRotation:
         >>> midnight_rotation.get_longitude_at_nearest_midnight(obsdate, latitude)
         <Longitude 4.87918286 deg>
         """
-        seconds_to_midnight = self.get_seconds_to_nearest_midnight(obsdate, fmt=fmt)
+        seconds_to_midnight = self.get_seconds_to_nearest_midnight(obsdate, fmt=fmt) * u.s
         return diff_rot(seconds_to_midnight, latitude, **kwargs)

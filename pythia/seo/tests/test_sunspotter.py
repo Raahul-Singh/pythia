@@ -1,8 +1,10 @@
 from pathlib import Path
 
+import astropy.units as u
 import numpy as np
 import pandas as pd
 import pytest
+from astropy.coordinates import Latitude, Longitude
 from pythia.seo.sunspotter import Sunspotter
 from sunpy.util import SunpyUserWarning
 
@@ -30,6 +32,16 @@ def properties(properties_columns):
 @pytest.fixture
 def timesfits_columns():
     return ['#id', 'filename', 'obs_date']
+
+
+@pytest.fixture
+def timesfits_csv():
+    return pd.read_csv(path / "lookup_timesfits.csv", delimiter=';')
+
+
+@pytest.fixture
+def properties_csv():
+    return pd.read_csv(path / "lookup_properties.csv", delimiter=';')
 
 
 @pytest.fixture
@@ -157,13 +169,19 @@ def test_get_all_ids_for_observation(sunspotter, obsdate):
 
 
 def test_get_properties(sunspotter, properties):
-    properties.set_index("#id", inplace=True)
+    properties.set_index("id_filename", inplace=True)
     assert sunspotter.get_properties(1).equals(properties.iloc[0])
 
 
-def test_get_properties_from_obsdate(sunspotter, obsdate, properties):
-    properties.set_index("#id", inplace=True)
-    assert sunspotter.get_properties_from_obsdate(obsdate).equals(properties.iloc[0])
+def test_get_first_property_from_obsdate(sunspotter, obsdate, properties):
+    properties.set_index("id_filename", inplace=True)
+    assert sunspotter.get_first_property_from_obsdate(obsdate).equals(properties.iloc[0])
+
+
+def test_get_all_properties_from_obsdate(sunspotter, obsdate, properties_csv, timesfits_csv):
+    properties_csv.set_index("id_filename", inplace=True)
+    idx = timesfits_csv[timesfits_csv.obs_date == obsdate]['#id']
+    assert sunspotter.get_all_properties_from_obsdate(obsdate).equals(properties_csv.loc[idx])
 
 
 def test_number_of_observations(sunspotter, obsdate):
@@ -210,3 +228,50 @@ def test_get_fits_filenames_from_range(sunspotter, start, end, filenames):
                                            dtype='datetime64[ns]', name='obs_date', freq=None))])
 def test_get_available_obsdatetime_range(sunspotter, start, end, obslist):
     assert all(sunspotter.get_available_obsdatetime_range(start, end) == obslist)
+
+
+def test_rotate_to_midnight(sunspotter, obsdate):
+    data = [(Longitude(6.50176828 * u.deg), Latitude(24.37393479 * u.deg)),
+            (Longitude(6.23906649 * u.deg), Latitude(36.4502797 * u.deg)),
+            (Longitude(6.43015715 * u.deg), Latitude(-28.26438437 * u.deg)),
+            (Longitude(6.61003124 * u.deg), Latitude(-16.47798634 * u.deg)),
+            (Longitude(6.66228849 * u.deg), Latitude(10.3648738 * u.deg))]
+
+    for index, (lon, lat) in enumerate(sunspotter.rotate_to_midnight(obsdate)):
+        assert pytest.approx(lon.value) == data[index][0].value
+        assert pytest.approx(lat.value) == data[index][1].value
+
+
+def test_rotate_list_to_midnight(sunspotter):
+    obslist = ['2000-01-02 12:51:02', '2000-01-14 12:47:02']
+    data = {
+        '2000-01-02 12:51:02': [(Longitude(6.19998452 * u.deg), Latitude(36.52576413 * u.deg)),
+                                (Longitude(6.57180621 * u.deg), Latitude(-16.37770425 * u. deg)),
+                                (Longitude(6.61932484 * u.deg), Latitude(10.87542475 * u.deg)),
+                                (Longitude(6.62367527 * u.deg), Latitude(10.21004421 * u.deg))],
+        '2000-01-14 12:47:02': [(Longitude(6.59902787 * u.deg), Latitude(-17.47160603 * u.deg)),
+                                (Longitude(6.45137373 * u.deg), Latitude(27.17957675 * u.deg)),
+                                (Longitude(6.33516688 * u.deg), Latitude(-32.62222324 * u.deg)),
+                                (Longitude(6.6540996 * u.deg), Latitude(11.55917 * u.deg)),
+                                (Longitude(6.59865146 * u.deg), Latitude(17.50447034 * u.deg)),
+                                (Longitude(6.64433002 * u.deg), Latitude(-12.83001216 * u.deg)),
+                                (Longitude(6.62074025 * u.deg), Latitude(15.44152655 * u.deg)),
+                                (Longitude(6.58919388 * u.deg), Latitude(-18.30832087 * u.deg)),
+                                (Longitude(6.58187325 * u.deg), Latitude(18.90391944 * u.deg)),
+                                (Longitude(6.62674631 * u.deg), Latitude(-14.82469254 * u.deg)),
+                                (Longitude(6.63042185 * u.deg), Latitude(-14.43274934 * u.deg))]}
+
+    rotated_dict = sunspotter.rotate_list_to_midnight(obslist)
+    for obsdate in rotated_dict:
+        for index, (lon, lat) in enumerate(rotated_dict[obsdate]):
+            assert pytest.approx(lon.value) == data[obsdate][index][0].value
+            assert pytest.approx(lat.value) == data[obsdate][index][1].value
+
+
+def test_hpc_to_hgs_position(sunspotter, obsdate):
+    assert sunspotter.hpc_to_hgs_position(obsdate).name == 'heliographic_stonyhurst'
+
+
+def test_get_lat_lon_in_hgs(sunspotter, obsdate):
+    assert isinstance(sunspotter.get_lat_lon_in_hgs(obsdate)[0], Longitude)
+    assert isinstance(sunspotter.get_lat_lon_in_hgs(obsdate)[1], Latitude)

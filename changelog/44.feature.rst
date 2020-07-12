@@ -1,0 +1,1 @@
+Adds conversion of Sunspotter positions, which are in HPC to HGS frame.
