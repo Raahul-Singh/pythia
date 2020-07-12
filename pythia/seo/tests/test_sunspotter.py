@@ -31,6 +31,13 @@ def properties(properties_columns):
 def timesfits_columns():
     return ['#id', 'filename', 'obs_date']
 
+@pytest.fixture
+def timesfits_csv():
+    return pd.read_csv(path / "lookup_timesfits.csv", delimiter=';')
+
+@pytest.fixture
+def properties_csv():
+    return pd.read_csv(path / "lookup_properties.csv", delimiter=';')
 
 @pytest.fixture
 def classifications_columns():
@@ -161,10 +168,14 @@ def test_get_properties(sunspotter, properties):
     assert sunspotter.get_properties(1).equals(properties.iloc[0])
 
 
-def test_get_properties_from_obsdate(sunspotter, obsdate, properties):
+def test_get_first_property_from_obsdate(sunspotter, obsdate, properties):
     properties.set_index("id_filename", inplace=True)
-    assert sunspotter.get_properties_from_obsdate(obsdate).equals(properties.iloc[0])
+    assert sunspotter.get_first_property_from_obsdate(obsdate).equals(properties.iloc[0])
 
+def test_get_all_properties_from_obsdate(sunspotter, obsdate, properties_csv, timesfits_csv):
+    properties_csv.set_index("id_filename", inplace=True)
+    idx = timesfits_csv[timesfits_csv.obs_date == obsdate]['#id']
+    assert sunspotter.get_all_properties_from_obsdate(obsdate).equals(properties_csv.loc[idx])
 
 def test_number_of_observations(sunspotter, obsdate):
     assert sunspotter.number_of_observations(obsdate) == 5

@@ -248,9 +248,55 @@ class Sunspotter:
         """
         return self.properties.loc[idx]
 
-    def get_properties_from_obsdate(self, obsdate: str):
+    def get_first_property_from_obsdate(self, obsdate: str):
         """
         Returns the observed properties for a given observation time and date.
+
+        Parameters
+        ----------
+        obsdate : str
+            The observation time and date.
+
+        Returns
+        -------
+        properties : pandas.Series
+            The observed properties for the given observation time and date.
+
+        Examples
+        --------
+        >>> from pythia.seo import Sunspotter
+        >>> sunspotter = Sunspotter()
+        >>> obsdate = '2000-01-01 12:47:02'
+        >>> sunspotter.get_first_property_from_obsdate(obsdate)
+        #id                                         1
+        filename         530be1183ae74079c300000d.jpg
+        zooniverse_id                      ASZ000090y
+        angle                                 37.8021
+        area                                    34400
+        areafrac                                 0.12
+        areathesh                                2890
+        bipolesep                                3.72
+        c1flr24hr                                   0
+        flux                                 2.18e+22
+        fluxfrac                                 0.01
+        hale                                     beta
+        hcpos_x                                452.27
+        hcpos_y                                443.93
+        m1flr12hr                                   0
+        m5flr12hr                                   0
+        n_nar                                       1
+        noaa                                     8809
+        pxpos_x                               229.193
+        pxpos_y                               166.877
+        sszn                                        1
+        zurich                                    bxo
+        Name: 1, dtype: object
+        """
+        return self.get_properties(self.get_timesfits_id(obsdate))
+
+    def get_all_properties_from_obsdate(self, obsdate: str):
+        """
+        Returns the all observed properties for a given observation time and date.
 
         Parameters
         ----------
@@ -267,33 +313,18 @@ class Sunspotter:
         >>> from pythia.seo import Sunspotter
         >>> sunspotter = Sunspotter()
         >>> obsdate = '2000-01-01 12:47:02'
-        >>> sunspotter.get_properties_from_obsdate(obsdate)
-        filename         530be1183ae74079c300000d.jpg
-        zooniverse_id                      ASZ000090y
-        angle                                 37.8021
-        area                                    34400
-        areafrac                                 0.12
-        areathesh                                2890
-        bipolesep                                3.72
-        c1flr24hr                                   0
-        id_filename                                 1
-        flux                                 2.18e+22
-        fluxfrac                                 0.01
-        hale                                     beta
-        hcpos_x                                452.27
-        hcpos_y                                443.93
-        m1flr12hr                                   0
-        m5flr12hr                                   0
-        n_nar                                       1
-        noaa                                     8809
-        pxpos_x                               229.193
-        pxpos_y                               166.877
-        sszn                                        1
-        zurich                                    bxo
-        Name: 1, dtype: object
-        [1 rows x 23 columns]
+        >>> sunspotter.get_all_properties_from_obsdate(obsdate)
+                     #id                      filename  ... sszn  zurich
+        id_filename                                     ...             
+        1              1  530be1183ae74079c300000d.jpg  ...    1     bxo
+        2              2  530be1183ae74079c300000f.jpg  ...    2     fao
+        3              3  530be1183ae74079c3000011.jpg  ...    3     axx
+        4              4  530be1183ae74079c3000013.jpg  ...    4     dro
+        5              5  530be1183ae74079c3000015.jpg  ...    5     hax
+
+        [5 rows x 22 columns]
         """
-        return self.get_properties(self.get_timesfits_id(obsdate))
+        return self.get_properties(self.get_all_ids_for_observation(obsdate))
 
     def number_of_observations(self, obsdate: str):
         """
