@@ -5,6 +5,7 @@ import astropy.units as u
 import matplotlib.pyplot as plt
 import pandas as pd
 from astropy.coordinates import SkyCoord
+from sunpy.coordinates import frames
 from pythia.cleaning import MidnightRotation
 from sunpy.map import Map, MapSequence
 from sunpy.net import Fido
@@ -692,19 +693,24 @@ class Sunspotter:
         plt.legend(handles=[hek_legend])
         plt.show()
 
-    def rotate_to_midnight(self, obsdate: str, fmt='%Y-%m-%d %H:%M:%S'):
+    def rotate_to_midnight(self, obsdate: str, fmt='%Y-%m-%d %H:%M:%S', unit=u.arcsec):
         """
         Returns the Longitude at midnight, for a given observation time and date.
+        
         Parameters
         ----------
         obsdate : str
             The observation time and date.
         fmt : str, optional
             The format in which obsdate is represented, by default '%Y-%m-%d %H:%M:%S'
+        unit : astropy.units
+            The unit of the Longitude, by default, arcsec.
+
         Returns
         -------
         longitude : u.deg
             longitude of the observation at midnight.
+        
         Examples
         --------
         >>> from pythia.seo import Sunspotter
@@ -715,24 +721,29 @@ class Sunspotter:
         """
         rotator = MidnightRotation()
         properties = self.get_properties_from_obsdate(obsdate)
-        latitude = properties['hcpos_y'].values * u.deg
+        latitude = properties['hcpos_y'].values * unit
         time_to_nearest_midnight = rotator.get_seconds_to_nearest_midnight(obsdate) * u.s
         return rotator.get_longitude_at_nearest_midnight(time_to_nearest_midnight, latitude)
 
-    def rotate_list_to_midnight(self, obslist: list, fmt='%Y-%m-%d %H:%M:%S'):
+    def rotate_list_to_midnight(self, obslist: list, fmt='%Y-%m-%d %H:%M:%S', unit=u.arcsec):
         """
         Returns list of Longitudes at midnight,
         for a given list of observation times and dates.
+
         Parameters
         ----------
         obslist : list
             List of observation times and dates.
         fmt : str, optional
             The format in which each obsdate is represented, by default '%Y-%m-%d %H:%M:%S'
+        unit : astropy.units
+            The unit of the Longitude, by default, arcsec.
+
         Returns
         -------
         longitudes : list of u.deg
             list of Longitudes at midnight, for the given list of observation times and dates.
+
         Examples
         --------
         >>> from pythia.seo import Sunspotter
@@ -745,4 +756,4 @@ class Sunspotter:
         <Longitude [5.28433062] deg>,
         <Longitude [4.82622275] deg>]
         """
-        return [self.rotate_to_midnight(obsdate) for obsdate in obslist]
+        return [self.rotate_to_midnight(obsdate, unit=unit) for obsdate in obslist]
