@@ -252,15 +252,15 @@ def test_rotate_list_to_midnight(sunspotter):
         '2000-01-14 12:47:02': [(Longitude(6.59902787 * u.deg), Latitude(-17.47160603 * u.deg)),
                                 (Longitude(6.45137373 * u.deg), Latitude(27.17957675 * u.deg)),
                                 (Longitude(6.33516688 * u.deg), Latitude(-32.62222324 * u.deg)),
-                                (Longitude(6.6540996  * u.deg), Latitude(11.55917 * u.deg)),
+                                (Longitude(6.6540996 * u.deg), Latitude(11.55917 * u.deg)),
                                 (Longitude(6.59865146 * u.deg), Latitude(17.50447034 * u.deg)),
                                 (Longitude(6.64433002 * u.deg), Latitude(-12.83001216 * u.deg)),
                                 (Longitude(6.62074025 * u.deg), Latitude(15.44152655 * u.deg)),
                                 (Longitude(6.58919388 * u.deg), Latitude(-18.30832087 * u.deg)),
                                 (Longitude(6.58187325 * u.deg), Latitude(18.90391944 * u.deg)),
                                 (Longitude(6.62674631 * u.deg), Latitude(-14.82469254 * u.deg)),
-                                (Longitude(6.63042185 * u.deg), Latitude(-14.43274934 * u.deg))]
-            }
+                                (Longitude(6.63042185 * u.deg), Latitude(-14.43274934 * u.deg))]}
+
     rotated_dict = sunspotter.rotate_list_to_midnight(obslist)
     for obsdate in rotated_dict:
         for index, (lon, lat) in enumerate(rotated_dict[obsdate]):
