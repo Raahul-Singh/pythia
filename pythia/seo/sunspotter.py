@@ -20,7 +20,7 @@ class Sunspotter:
 
     def __init__(self, *, timesfits: str = path / "lookup_timesfits.csv", get_all_timesfits_columns: bool = True,
                  properties: str = path / "lookup_properties.csv", get_all_properties_columns: bool = True,
-                 timesfits_columns: list = ['#id'], properties_columns: list = ['#id'],
+                 timesfits_columns: list = ['#id'], properties_columns: list = ['#id', 'id_filename'],
                  classifications=None, classifications_columns=None,
                  delimiter: str = ';', datetime_fmt: str = '%Y-%m-%d %H:%M:%S'):
         """
@@ -42,7 +42,7 @@ class Sunspotter:
             Columns required from lookup_timesfits.csv, by default ['#id']
             Will be overridden if `get_all_timesfits_columns` is True.
         properties_columns : list, optional
-            Columns required from lookup_properties.csv, by default ['#id']
+            Columns required from lookup_properties.csv, by default ['#id', 'id_filename']
             Will be overridden if `get_all_properties_columns` is True.
         classifications : str, optional
             filepath to `classifications.csv`
@@ -120,8 +120,8 @@ class Sunspotter:
                                    " The Properties CSV is missing the following columns: " +
                                    missing_columns)
 
-        if '#id' in self.properties.columns:
-            self.properties.set_index("#id", inplace=True)
+        if 'id_filename' in self.properties.columns:
+            self.properties.set_index("id_filename", inplace=True)
 
         # Reading the Classification file
         if self.classifications is not None:

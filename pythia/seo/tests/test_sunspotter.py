@@ -157,12 +157,12 @@ def test_get_all_ids_for_observation(sunspotter, obsdate):
 
 
 def test_get_properties(sunspotter, properties):
-    properties.set_index("#id", inplace=True)
+    properties.set_index("id_filename", inplace=True)
     assert sunspotter.get_properties(1).equals(properties.iloc[0])
 
 
 def test_get_properties_from_obsdate(sunspotter, obsdate, properties):
-    properties.set_index("#id", inplace=True)
+    properties.set_index("id_filename", inplace=True)
     assert sunspotter.get_properties_from_obsdate(obsdate).equals(properties.iloc[0])
 
 
