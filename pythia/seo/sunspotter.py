@@ -5,8 +5,8 @@ import astropy.units as u
 import matplotlib.pyplot as plt
 import pandas as pd
 from astropy.coordinates import SkyCoord
-from sunpy.coordinates import frames
 from pythia.cleaning import MidnightRotation
+from sunpy.coordinates import frames
 from sunpy.map import Map, MapSequence
 from sunpy.net import Fido
 from sunpy.net import attrs as a
@@ -315,7 +315,7 @@ class Sunspotter:
         >>> obsdate = '2000-01-01 12:47:02'
         >>> sunspotter.get_all_properties_from_obsdate(obsdate)
                      #id                      filename  ... sszn  zurich
-        id_filename                                     ...             
+        id_filename                                     ...
         1              1  530be1183ae74079c300000d.jpg  ...    1     bxo
         2              2  530be1183ae74079c300000f.jpg  ...    2     fao
         3              3  530be1183ae74079c3000011.jpg  ...    3     axx
@@ -724,39 +724,46 @@ class Sunspotter:
         plt.legend(handles=[hek_legend])
         plt.show()
 
-    def rotate_to_midnight(self, obsdate: str, fmt='%Y-%m-%d %H:%M:%S', unit=u.arcsec):
+    def rotate_to_midnight(self, obsdate: str, fmt='%Y-%m-%d %H:%M:%S', **kwargs):
         """
-        Returns the Longitude at midnight, for a given observation time and date.
-        
+        Returns the Longitudes at midnight for all observations,
+        for a given observation time and date.
+
         Parameters
         ----------
         obsdate : str
             The observation time and date.
         fmt : str, optional
             The format in which obsdate is represented, by default '%Y-%m-%d %H:%M:%S'
-        unit : astropy.units
-            The unit of the Longitude, by default, arcsec.
+        **kwargs : dict
+            Dictionary to be passed to `get_lat_lon_in_hgs` function.
 
         Returns
         -------
-        longitude : u.deg
-            longitude of the observation at midnight.
-        
+        longitudes, latitudes : list of tuples.
+            longitudes and latitudes at midnight of all the observations
+            for the given obsdate.
+
         Examples
         --------
         >>> from pythia.seo import Sunspotter
-        >>> sunspotter = Sunspotter(timesfits="lookup_timefits.csv", properties="lookup_properties.csv")
+        >>> sunspotter = Sunspotter()
         >>> obsdate = '2000-01-01 12:47:02'
         >>> sunspotter.rotate_to_midnight(obsdate)
-        <Longitude [4.87918286] deg>
+        [(<Longitude 6.50176828 deg>, <Latitude 24.37393479 deg>),
+        (<Longitude 6.23906649 deg>, <Latitude 36.4502797 deg>),
+        (<Longitude 6.43015715 deg>, <Latitude -28.26438437 deg>),
+        (<Longitude 6.61003124 deg>, <Latitude -16.47798634 deg>),
+        (<Longitude 6.66228849 deg>, <Latitude 10.3648738 deg>)]
         """
         rotator = MidnightRotation()
-        properties = self.get_properties_from_obsdate(obsdate)
-        latitude = properties['hcpos_y'].values * unit
-        time_to_nearest_midnight = rotator.get_seconds_to_nearest_midnight(obsdate) * u.s
-        return rotator.get_longitude_at_nearest_midnight(time_to_nearest_midnight, latitude)
+        _, latitude = self.get_lat_lon_in_hgs(obsdate, **kwargs)
+        rotated = []
+        for lat in latitude:
+            rotated.append((rotator.get_longitude_at_nearest_midnight(obsdate, lat), lat))
+        return rotated
 
-    def rotate_list_to_midnight(self, obslist: list, fmt='%Y-%m-%d %H:%M:%S', unit=u.arcsec):
+    def rotate_list_to_midnight(self, obslist: list, fmt='%Y-%m-%d %H:%M:%S'):
         """
         Returns list of Longitudes at midnight,
         for a given list of observation times and dates.
@@ -767,24 +774,87 @@ class Sunspotter:
             List of observation times and dates.
         fmt : str, optional
             The format in which each obsdate is represented, by default '%Y-%m-%d %H:%M:%S'
-        unit : astropy.units
-            The unit of the Longitude, by default, arcsec.
 
         Returns
         -------
-        longitudes : list of u.deg
-            list of Longitudes at midnight, for the given list of observation times and dates.
+        longitudes, latitudes : dict of list of tuples, indexed by obsdate.
+            longitudes and latitudes at midnight of all the observations for all
+            obsdates in the obs_list.
 
         Examples
         --------
         >>> from pythia.seo import Sunspotter
-        >>> sunspotter = Sunspotter(timesfits="lookup_timefits.csv", properties="lookup_properties.csv")
-        >>> obslist = ['2000-01-02 12:51:02', '2000-01-14 12:47:02', '2000-01-18 12:51:02', '2000-01-23 12:47:02', '2000-01-24 12:51:02']
+        >>> sunspotter = Sunspotter()
+        >>> obslist = ['2000-01-02 12:51:02', '2000-01-14 12:47:02']
         >>> sunspotter.rotate_list_to_midnight(obslist)
-        [<Longitude [4.8817556] deg>,
-        <Longitude [5.85374373] deg>,
-        <Longitude [5.15349168] deg>,
-        <Longitude [5.28433062] deg>,
-        <Longitude [4.82622275] deg>]
+        {'2000-01-02 12:51:02': [(<Longitude 6.19998452 deg>,
+           <Latitude 36.52576413 deg>),
+          (<Longitude 6.57180621 deg>, <Latitude -16.37770425 deg>),
+          (<Longitude 6.61932484 deg>, <Latitude 10.87542475 deg>),
+          (<Longitude 6.62367527 deg>, <Latitude 10.21004421 deg>)],
+         '2000-01-14 12:47:02': [(<Longitude 6.59902787 deg>,
+           <Latitude -17.47160603 deg>),
+          (<Longitude 6.45137373 deg>, <Latitude 27.17957675 deg>),
+          (<Longitude 6.33516688 deg>, <Latitude -32.62222324 deg>),
+          (<Longitude 6.6540996 deg>, <Latitude 11.55917 deg>),
+          (<Longitude 6.59865146 deg>, <Latitude 17.50447034 deg>),
+          (<Longitude 6.64433002 deg>, <Latitude -12.83001216 deg>),
+          (<Longitude 6.62074025 deg>, <Latitude 15.44152655 deg>),
+          (<Longitude 6.58919388 deg>, <Latitude -18.30832087 deg>),
+          (<Longitude 6.58187325 deg>, <Latitude 18.90391944 deg>),
+          (<Longitude 6.62674631 deg>, <Latitude -14.82469254 deg>),
+          (<Longitude 6.63042185 deg>, <Latitude -14.43274934 deg>)]}
         """
-        return [self.rotate_to_midnight(obsdate, unit=unit) for obsdate in obslist]
+        obs_dict = {}
+        for obsdate in obslist:
+            obs_dict[obsdate] = self.rotate_to_midnight(obsdate)
+        return obs_dict
+
+    def hpc_to_hgs_position(self, obsdate: str, get_nearest=True):
+        """
+        Transforms the lat lon for all observations corresponding to a given obsdate
+        from Helioprojective frame to HeliographicStonyhurst frame.
+
+        Parameters
+        ----------
+        obsdate : str
+            The observation time and date.
+        get_nearest : bool, optional
+            Get the obsdate in the loaded dataset closest to the given obsdate
+            by default True.
+
+        Returns
+        -------
+        frame : sunpy.coordinates.frames.HeliographicStonyhurst
+            HGS frame for all the observations for the given obsdate.
+        """
+        if get_nearest:
+            obsdate = self.get_nearest_observation(obsdate)
+
+        obs = self.get_all_properties_from_obsdate(obsdate)
+        hpc_frame = frames.Helioprojective(Tx=obs.hcpos_x * u.arcsec,
+                                           Ty=obs.hcpos_y * u.arcsec,
+                                           obstime=obsdate, observer='earth')
+        return hpc_frame.transform_to(frames.HeliographicStonyhurst)
+
+    def get_lat_lon_in_hgs(self, obsdate, get_nearest=True):
+        """
+        Returns the Latitude and Longitude for all the observations
+        in HeliographicStonyhurst frame, for a given obsdate.
+
+        Parameters
+        ----------
+        obsdate : str
+            The observation time and date.
+        get_nearest : bool, optional
+            Get the obsdate in the loaded dataset closest to the given obsdate
+            by default True.
+
+        Returns
+        -------
+        (lon, lat) : tuple
+            Tuple of the Longitude and Latitude for all observations for a given obsdate,
+            in HeliographicStonyhurst frame.
+        """
+        hgs_frame = self.hpc_to_hgs_position(obsdate, get_nearest)
+        return hgs_frame.lon, hgs_frame.lat
