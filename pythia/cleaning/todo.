@@ -1,0 +1,12 @@
+1) Sunspotter -> (hpc) to (hgs) {use x,y, time, observer=earth} will get {lat, lon}
+(https://docs.sunpy.org/en/stable/guide/units-coordinates.html)
+
+2) MidRot has error when used without step 1. Use new coord from step 1, (which will be in deg, hopefully).
+
+3) Look at swpc.ipynb cell 7 from the start. This gives us the event coord in deg. which will be mapped with output of step 2.
+
+4) Tune it! +- 5 for euclidean.
+
+for image in images:
+    table = client.search(a.Time(image.obsdate, image.obsdate + 24hrs), a.FL, a.FRM.Name == 'SWPC') # TO GET AR NUMBER AND EVENT_COORD, WHICH ARE IN DEG HOPEFULLY
+    table.match( ar_noaanum )
