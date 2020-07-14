@@ -1,5 +1,6 @@
-import numpy as np
 import warnings
+
+import numpy as np
 from sunpy.util import SunpyUserWarning
 
 __all__ = ['TableMatcher']
@@ -85,19 +86,13 @@ class TableMatcher:
     def match_cosine(self, df_1, df_2):
         """
         Finds Cosine similarity between the rows of the two dataframes.
-        
         Parameters
         ----------
         df_1: `pd.DataFrame`
             First DataFrame to match the rows from.
         df_2: `pd.DataFrame`
             Second DataFrame to match the rows from.
-        
-        Returns
-        -------
-        result: `numpy.ndarray`
             Array of size `(n,)` where n is the number of rows in df_1.
-            Contains indices of rows from df_2 that best correspond to rows from df_1.
         match_score: `numpy.ndarray`
             Array of size `(n,)` where n is the number of rows in df_1.
             Contains match score for  corresponding best matches.
@@ -117,14 +112,12 @@ class TableMatcher:
     def match_euclidean(self, df_1, df_2):
         """
         Finds euclidean distance between the rows of the two dataframes.
-        
         Parameters
         ----------
         df_1: `pd.DataFrame`
             First DataFrame to match the rows from.
         df_2: `pd.DataFrame`
             Second DataFrame to match the rows from.
-        
         Returns
         -------
         result: `numpy.ndarray`
@@ -149,7 +142,6 @@ class TableMatcher:
         """
         Verify matching quality. If any match score is less than the threshold,
         raises Sunpy User Warnings.
-        
         Parameters
         ----------
         match_score: `numpy.ndarray`
@@ -166,7 +158,6 @@ class TableMatcher:
         """
         Finds best match between the rows of the two dataframes.
         Raises warning id matching is dubious.
-        
         Parameters
         ----------
         feature_1: `list`
@@ -175,7 +166,6 @@ class TableMatcher:
             List of columns from df_2 to match the rows with.
         threshold: `float`
             Minimum score for considering a proper match.
-        
         Returns
         -------
         result: `numpy.ndarray`
