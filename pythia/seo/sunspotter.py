@@ -4,8 +4,9 @@ from pathlib import Path
 import astropy.units as u
 import matplotlib.pyplot as plt
 import pandas as pd
-from astropy.coordinates import SkyCoord
+from astropy.coordinates import SkyCoord, Longitude
 from pythia.cleaning import MidnightRotation
+from pythia.seo import TableMatcher
 from sunpy.coordinates import frames
 from sunpy.map import Map, MapSequence
 from sunpy.net import Fido
@@ -757,10 +758,11 @@ class Sunspotter:
         (<Longitude 6.66228849 deg>, <Latitude 10.3648738 deg>)]
         """
         rotator = MidnightRotation()
-        _, latitude = self.get_lat_lon_in_hgs(obsdate, **kwargs)
+        longitude, latitude = self.get_lat_lon_in_hgs(obsdate, **kwargs)
         rotated = []
-        for lat in latitude:
-            rotated.append((rotator.get_longitude_at_nearest_midnight(obsdate, lat), lat))
+        for index, lon in enumerate(longitude):
+            rotated.append((lon + Longitude(rotator.get_longitude_at_nearest_midnight(obsdate, latitude[index])),
+                            latitude[index]))
         return rotated
 
     def rotate_list_to_midnight(self, obslist: list, fmt='%Y-%m-%d %H:%M:%S'):
