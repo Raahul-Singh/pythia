@@ -1,62 +1,81 @@
 import numpy as np
-
+import warnings
 from sunpy.util import SunpyUserWarning
 
 __all__ = ['TableMatcher']
 
 class TableMatcher:
     """
-    Table Matcher Object for finding corresponding rows across two distinct datasets.
+    Table Matcher Object for finding corresponding rows across two distinct dataframes.
     """
-    def __init__(self, df_1, df_2, match_type=None):
+    def __init__(self, match_type='cosine'):
         """
         Parameters
         ----------
-        df_1: `pd.DataFrame`
-            First DataFrame to match the rows from.
-        df_2: `pd.DataFrame`
-            Second DataFrame to match the rows from.
-        match_type: `str`
-            Matching algorithm to match the rows of df_1 with rows of df_2.
+        match_type : str, optional
+            The row matching algorithm, by default 'cosine'
+
+        Raises
+        ------
+        SunpyUserWarning
+            If unrecognized match type is passed.
         """
-        self.df_1 = df_1
-        self.df_2 = df_2
-
         self.match_type = match_type
-        if self.match_type is None:
-            self.match_type = 'cosine'
 
-        elif self.match_type is not None and self.match_type != 'euclidean':
+        if self.match_type is not 'cosine' and self.match_type != 'euclidean':
             raise SunpyUserWarning('Incorrect matching algorithm specified.')
 
-    def prepare_tables(self, feature_1, feature_2):
+    def _prepare_tables(self, df_1, df_2, feature_1=None, feature_2=None):
         """
-        Prepates tables for matching.
+        Prepares tables for matching.
+        Left match on df_1 and df_2
+
         Parameters
         ----------
-        feature_1: `list`
-            List of columns from df_1 to match the rows with.
-        feature_2: `list`
-            List of columns from df_2 to match the rows with.
+        df_1 : pd.DataFrame
+            Dataframe that will be used for matching.
+        df_2 : pd.DataFrame
+            Dataframe that will be used for matching.
+        feature_1 : str, by default None
+            List of features of df_1 that will be used for matching.
+            None indicates all features will be used.
+        feature_2 : str, by default None
+            List of features of df_2 that will be used for matching.
+            None indicates all features will be used.
+
         Returns
         -------
-        df_1: `pd.DataFrame`
+        df_1 : pd.DataFrame
             df_1 with only those columns that will be used for matching.
-        df_2: `pd.DataFrame`
+        df_2 : pd.DataFrame
             df_2 with only those columns that will be used for matching.
-        #TODO: Add pairwise type checks to see if corresponding features
-        are in the right alignment.
+
+        Raises
+        ------
+        SunpyUserWarning
+            If number of features for df_1 is not equal to
+            number of features for df_2.
+        SunpyUserWarning
+            if key from feature_1 is not present in df_1
+        SunpyUserWarning
+            if key from feature_2 is not present in df_2
         """
+        if feature_1 is None:
+            feature_1 = df_1.columns.values
+
+        if feature_2 is None:
+            feature_2 = df_2.columns.values
+
         if len(feature_1) != len(feature_2):
             raise SunpyUserWarning("The number of columns to match the rows on must be the same.")
 
         try:
-            df_1 = self.df_1[feature_1]
+            df_1 = df_1[feature_1]
         except KeyError:
             raise SunpyUserWarning("The features specified for table 1 do not "
                                    "correspond to any columns in table 1.")
         try:
-            df_2 = self.df_2[feature_2]
+            df_2 = df_2[feature_2]
         except KeyError:
             raise SunpyUserWarning("The features specified for table 2 do not "
                                    "correspond to any columns in table 2.")
@@ -66,12 +85,14 @@ class TableMatcher:
     def match_cosine(self, df_1, df_2):
         """
         Finds Cosine similarity between the rows of the two dataframes.
+        
         Parameters
         ----------
         df_1: `pd.DataFrame`
             First DataFrame to match the rows from.
         df_2: `pd.DataFrame`
             Second DataFrame to match the rows from.
+        
         Returns
         -------
         result: `numpy.ndarray`
@@ -96,12 +117,14 @@ class TableMatcher:
     def match_euclidean(self, df_1, df_2):
         """
         Finds euclidean distance between the rows of the two dataframes.
+        
         Parameters
         ----------
         df_1: `pd.DataFrame`
             First DataFrame to match the rows from.
         df_2: `pd.DataFrame`
             Second DataFrame to match the rows from.
+        
         Returns
         -------
         result: `numpy.ndarray`
@@ -126,6 +149,7 @@ class TableMatcher:
         """
         Verify matching quality. If any match score is less than the threshold,
         raises Sunpy User Warnings.
+        
         Parameters
         ----------
         match_score: `numpy.ndarray`
@@ -136,12 +160,13 @@ class TableMatcher:
         """
         for index, score_value in enumerate(match_score):
             if score_value < threshold:
-                raise SunpyUserWarning(f"\nMatch at Index {index} is likely to be incorrect\n")
+                warnings.warn(SunpyUserWarning(f"\nMatch at Index {index} is likely to be incorrect\n"))
 
-    def match(self, feature_1, feature_2, threshold=0):
+    def match(self, df_1, df_2, feature_1=None, feature_2=None, threshold=0):
         """
         Finds best match between the rows of the two dataframes.
         Raises warning id matching is dubious.
+        
         Parameters
         ----------
         feature_1: `list`
@@ -150,13 +175,14 @@ class TableMatcher:
             List of columns from df_2 to match the rows with.
         threshold: `float`
             Minimum score for considering a proper match.
+        
         Returns
         -------
         result: `numpy.ndarray`
             Array of size `(n,)` where n is the number of rows in df_1.
             Contains indices of rows from df_2 that best correspond to rows from df_1.
         """
-        df_1, df_2 = self.prepare_tables(feature_1, feature_2)
+        df_1, df_2 = self._prepare_tables(df_1, df_2, feature_1, feature_2)
 
         if self.match_type == 'cosine':
             result, match_score = self.match_cosine(df_1, df_2)

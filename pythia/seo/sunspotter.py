@@ -4,6 +4,7 @@ from pathlib import Path
 import astropy.units as u
 import matplotlib.pyplot as plt
 import pandas as pd
+from datetime import datetime, timedelta
 from astropy.coordinates import SkyCoord, Longitude
 from pythia.cleaning import MidnightRotation
 from pythia.seo import TableMatcher
@@ -201,7 +202,7 @@ class Sunspotter:
         array([1, 2, 3, 4, 5])
         """
         obsdate = self.get_nearest_observation(obsdate)
-        return self.timesfits.loc[obsdate].get(key='#id').values
+        return self.timesfits.loc[obsdate].get(key='#id')
 
     def get_properties(self, idx: int):
         """
@@ -860,3 +861,38 @@ class Sunspotter:
         """
         hgs_frame = self.hpc_to_hgs_position(obsdate, get_nearest)
         return hgs_frame.lon, hgs_frame.lat
+
+    def match_with_swpc_for_obsdate(self, obsdate, flare_positions='SWPC', days_delta=1, match_type='euclidean',
+                                    noaa_ar='NOAA SWPC Observer', fmt='%Y-%m-%d %H:%M:%S', **kwargs):
+        obsdate = self.get_nearest_observation(obsdate)
+
+        a = hek.attrs
+        client = hek.HEKClient()
+
+        tstart = datetime.strptime(obsdate, fmt)
+        tend = datetime.strptime(obsdate, fmt) + timedelta(days=days_delta)
+
+        result = client.search(a.Time(tstart, tend), a.AR, a.FRM.Name == noaa_ar)
+
+        data = result['hgs_x', 'hgs_y', 'ar_noaanum']
+        data = data.to_pandas()
+
+        longitude, latitude = self.get_lat_lon_in_hgs(obsdate)
+
+        properties = self.get_all_properties_from_obsdate(obsdate)
+
+        rotated = self.rotate_to_midnight(obsdate)
+
+        lon = [coord[0].value for coord in rotated]
+        lat = [coord[1].value for coord in rotated]
+
+        df_1 = pd.DataFrame(columns=['lon', 'lat'])
+        df_1['lon'] = lon
+        df_1['lat'] = lat
+
+        df_2 = data[['hgs_x', 'hgs_y']]
+
+        tablematcher = TableMatcher(match_type=match_type)
+        res, prob = tablematcher.match(df_1, df_2)
+
+        return properties, data.iloc[res]
