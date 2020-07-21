@@ -4,7 +4,7 @@ import astropy.units as u
 import numpy as np
 import pandas as pd
 import pytest
-from astropy.coordinates import Latitude, Longitude
+from astropy.coordinates import Latitude, Longitude, Angle
 from pythia.seo.sunspotter import Sunspotter
 from sunpy.util import SunpyUserWarning
 
@@ -231,11 +231,11 @@ def test_get_available_obsdatetime_range(sunspotter, start, end, obslist):
 
 
 def test_rotate_to_midnight(sunspotter, obsdate):
-    data = [(Longitude(6.50176828 * u.deg), Latitude(24.37393479 * u.deg)),
-            (Longitude(6.23906649 * u.deg), Latitude(36.4502797 * u.deg)),
-            (Longitude(6.43015715 * u.deg), Latitude(-28.26438437 * u.deg)),
-            (Longitude(6.61003124 * u.deg), Latitude(-16.47798634 * u.deg)),
-            (Longitude(6.66228849 * u.deg), Latitude(10.3648738 * u.deg))]
+    data = [(Angle(36.97694919 * u.deg), Latitude(24.37393479 * u.deg)),
+            (Angle(17.19347675 * u.deg), Latitude(36.4502797 * u.deg)),
+            (Angle(61.2536554 * u.deg), Latitude(-28.26438437 * u.deg)),
+            (Angle(-21.9812322 * u.deg), Latitude(-16.47798634 * u.deg)),
+            (Angle(-43.1676592 * u.deg), Latitude(10.3648738 * u.deg))]
 
     for index, (lon, lat) in enumerate(sunspotter.rotate_to_midnight(obsdate)):
         assert pytest.approx(lon.value) == data[index][0].value
@@ -245,21 +245,21 @@ def test_rotate_to_midnight(sunspotter, obsdate):
 def test_rotate_list_to_midnight(sunspotter):
     obslist = ['2000-01-02 12:51:02', '2000-01-14 12:47:02']
     data = {
-        '2000-01-02 12:51:02': [(Longitude(6.19998452 * u.deg), Latitude(36.52576413 * u.deg)),
-                                (Longitude(6.57180621 * u.deg), Latitude(-16.37770425 * u. deg)),
-                                (Longitude(6.61932484 * u.deg), Latitude(10.87542475 * u.deg)),
-                                (Longitude(6.62367527 * u.deg), Latitude(10.21004421 * u.deg))],
-        '2000-01-14 12:47:02': [(Longitude(6.59902787 * u.deg), Latitude(-17.47160603 * u.deg)),
-                                (Longitude(6.45137373 * u.deg), Latitude(27.17957675 * u.deg)),
-                                (Longitude(6.33516688 * u.deg), Latitude(-32.62222324 * u.deg)),
-                                (Longitude(6.6540996 * u.deg), Latitude(11.55917 * u.deg)),
-                                (Longitude(6.59865146 * u.deg), Latitude(17.50447034 * u.deg)),
-                                (Longitude(6.64433002 * u.deg), Latitude(-12.83001216 * u.deg)),
-                                (Longitude(6.62074025 * u.deg), Latitude(15.44152655 * u.deg)),
-                                (Longitude(6.58919388 * u.deg), Latitude(-18.30832087 * u.deg)),
-                                (Longitude(6.58187325 * u.deg), Latitude(18.90391944 * u.deg)),
-                                (Longitude(6.62674631 * u.deg), Latitude(-14.82469254 * u.deg)),
-                                (Longitude(6.63042185 * u.deg), Latitude(-14.43274934 * u.deg))]}
+        '2000-01-02 12:51:02': [(Angle(29.18769332 * u.deg), Latitude(36.52576413 * u.deg)),
+                                (Angle(-7.76906673 * u.deg), Latitude(-16.37770425 * u. deg)),
+                                (Angle(-22.24109406 * u.deg), Latitude(10.87542475 * u.deg)),
+                                (Angle(-35.77644712 * u.deg), Latitude(10.21004421 * u.deg))],
+        '2000-01-14 12:47:02': [(Angle(34.29683246 * u.deg), Latitude(-17.47160603 * u.deg)),
+                                (Angle(22.69921514 * u.deg), Latitude(27.17957675 * u.deg)),
+                                (Angle(11.30137214 * u.deg), Latitude(-32.62222324 * u.deg)),
+                                (Angle(-5.21988476 * u.deg), Latitude(11.55917 * u.deg)),
+                                (Angle(63.83616486 * u.deg), Latitude(17.50447034 * u.deg)),
+                                (Angle(60.67931868 * u.deg), Latitude(-12.83001216 * u.deg)),
+                                (Angle(-38.76920932 * u.deg), Latitude(15.44152655 * u.deg)),
+                                (Angle(-54.48209673 * u.deg), Latitude(-18.30832087 * u.deg)),
+                                (Angle(-66.3248029 * u.deg), Latitude(18.90391944 * u.deg)),
+                                (Angle(-10.24376936 * u.deg), Latitude(-14.82469254 * u.deg)),
+                                (Angle(14.22674259 * u.deg), Latitude(-14.43274934 * u.deg))]}
 
     rotated_dict = sunspotter.rotate_list_to_midnight(obslist)
     for obsdate in rotated_dict:
