@@ -295,7 +295,9 @@ def test_get_lat_lon_in_hgs(sunspotter, obsdate):
 def test_match_with_swpc_for_obsdate_default(sunspotter, compare_df):
     obsdate = '2005-12-31 12:48:02'
     match_result = sunspotter.match_with_swpc_for_obsdate(obsdate)
-    assert match_result.equals(compare_df)
+
+    for column in compare_df.columns:
+        assert all(np.isclose(match_result[column], compare_df[column]))
 
 
 def test_match_with_swpc_for_obsdate_threshold_warning(sunspotter, compare_df):
@@ -304,4 +306,5 @@ def test_match_with_swpc_for_obsdate_threshold_warning(sunspotter, compare_df):
     with pytest.warns(SunpyUserWarning):
         match_result = sunspotter.match_with_swpc_for_obsdate(obsdate, match_threshold=0)
 
-    assert match_result.equals(compare_df)
+    for column in compare_df.columns:
+        assert all(np.isclose(match_result[column], compare_df[column]))
