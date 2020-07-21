@@ -159,11 +159,17 @@ class TableMatcher:
         threshold: `float`
             Minimum score for considering a proper match.
         """
-        for index, score_value in enumerate(match_score):
-            if score_value < threshold:
-                warnings.warn(SunpyUserWarning(f"\nMatch at Index {index} is likely to be incorrect\n"))
+        if self.match_type == 'euclidean':
+            for index, score_value in enumerate(match_score):
+                if score_value > threshold:
+                    warnings.warn(SunpyUserWarning(f"\nMatch at Index {index} is likely to be incorrect\n"))
 
-    def match(self, df_1, df_2, feature_1=None, feature_2=None, threshold=0):
+        if self.match_type == 'cosine':
+            for index, score_value in enumerate(match_score):
+                if score_value < threshold:
+                    warnings.warn(SunpyUserWarning(f"\nMatch at Index {index} is likely to be incorrect\n"))
+
+    def match(self, df_1, df_2, feature_1=None, feature_2=None, threshold=5):
         """
         Finds best match between the rows of the two dataframes.
         Raises warning id matching is dubious.

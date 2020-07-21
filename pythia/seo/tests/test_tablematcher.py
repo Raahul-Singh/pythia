@@ -72,7 +72,9 @@ def test_match_incorrect_algorithm():
 
 def test_match_cosine_no_threshold(df_1, df_2, feature_1, feature_2, best_match):
 	matcher = TableMatcher()
-	result = matcher.match(df_1, df_2, feature_1, feature_2)
+
+	with pytest.warns(SunpyUserWarning):
+		result = matcher.match(df_1, df_2, feature_1, feature_2)
 
 	assert np.array_equal(result, best_match)
 
@@ -86,7 +88,9 @@ def test_match_cosine(df_1, df_2, feature_1, feature_2, best_match):
 
 def test_match_euclidean_no_threshold(df_1, df_2, feature_1, feature_2, best_match):
 	matcher = TableMatcher(match_type='euclidean')
-	result = matcher.match(df_1, df_2, feature_1, feature_2)
+
+	with pytest.warns(SunpyUserWarning):
+		result = matcher.match(df_1, df_2, feature_1, feature_2)
 
 	assert np.array_equal(result, best_match)
 
@@ -95,19 +99,19 @@ def test_match_euclidean(df_1, df_2, feature_1, feature_2, best_match):
 	matcher = TableMatcher( match_type='euclidean')
 
 	with pytest.warns(SunpyUserWarning):
-		matcher.match(df_1, df_2, feature_1, feature_2, threshold=3)
+		matcher.match(df_1, df_2, feature_1, feature_2, threshold=0)
 
 
 def test_match_no_features_mismatch(df_1, df_2, best_match):
     matcher = TableMatcher(match_type='euclidean')
 
     with pytest.raises(SunpyUserWarning):
-        matcher.match(df_1, df_2, threshold=3)
+        matcher.match(df_1, df_2, threshold=10)
 
 
 def test_match_no_features(df_1, df_2, feature_1, feature_2, best_match):
     matcher = TableMatcher(match_type='euclidean')
     df_1 = df_1[feature_1]
     df_2 = df_2[feature_2]
-
-    matcher.match(df_1, df_2, threshold=3)
+    with pytest.warns(SunpyUserWarning):
+        matcher.match(df_1, df_2, threshold=5)
