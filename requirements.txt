@@ -7,3 +7,4 @@ drms>=0.5.7
 zeep>=3.4.0
 matplotlib>=3.2.1
 astropy>=4.0
+scikit-learn>=0.23.1
