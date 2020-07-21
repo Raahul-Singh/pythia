@@ -761,9 +761,13 @@ class Sunspotter:
         rotator = MidnightRotation()
         longitude, latitude = self.get_lat_lon_in_hgs(obsdate, **kwargs)
         rotated = []
-        for index, lon in enumerate(longitude):
-            rotated.append((lon + Longitude(rotator.get_longitude_at_nearest_midnight(obsdate, latitude[index])),
-                            latitude[index]))
+        try:
+            for index, lon in enumerate(longitude):
+                rotated.append((lon + Longitude(rotator.get_longitude_at_nearest_midnight(obsdate, latitude[index])),
+                                latitude[index]))
+        except TypeError:
+            rotated.append((longitude + Longitude(rotator.get_longitude_at_nearest_midnight(obsdate, latitude)),
+                                latitude))
         return rotated
 
     def rotate_list_to_midnight(self, obslist: list, fmt='%Y-%m-%d %H:%M:%S'):
@@ -914,6 +918,10 @@ class Sunspotter:
         data = data.to_pandas()
 
         properties = self.get_all_properties_from_obsdate(obsdate)
+
+        if isinstance(properties, pd.Series):
+            properties = pd.DataFrame(data=[properties.values],
+                                      columns=properties.index.values)
 
         rotated = self.rotate_to_midnight(obsdate)
 
