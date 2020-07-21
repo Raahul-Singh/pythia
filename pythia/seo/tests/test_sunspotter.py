@@ -4,7 +4,7 @@ import astropy.units as u
 import numpy as np
 import pandas as pd
 import pytest
-from astropy.coordinates import Latitude, Longitude, Angle
+from astropy.coordinates import Angle, Latitude, Longitude
 from pythia.seo.sunspotter import Sunspotter
 from sunpy.util import SunpyUserWarning
 
@@ -66,6 +66,20 @@ def sunspotter(properties_columns, timesfits_columns, classifications_columns):
 def obsdate():
     # `obs_date` corresponding to `#id` 1
     return '2000-01-01 12:47:02'
+
+@pytest.fixture
+def compare_df():
+    df = pd.DataFrame(columns=['id_filename', 'Sunspotter NOAA', 'HEK NOAA', 'Sunspotter Longitude',
+                               'HEK Longitude', 'Sunspotter Latitude', 'HEK Latitude'])
+    df['id_filename'] = [12961, 12962, 12963, 12964, 12965]
+    df['Sunspotter NOAA'] = [10838, 10840, 10841, 10843, 10844]
+    df['HEK NOAA'] = [10838, 10840, 10841, 10843, 10844]
+    df['Sunspotter Longitude'] = [75.80890071046657, 18.19194752908415, 11.644637399338993, -7.105893517350921, 76.8112979233762]
+    df['HEK Longitude'] = [88, 26, 16, -2, 81]
+    df['Sunspotter Latitude'] = [16.218928298804492, -2.875432955561788, 11.521982686891043, 12.301116578845914, -14.756412258758138]
+    df['HEK Latitude'] = [15, -3, 12, 12, -14]
+    df.set_index(keys=['id_filename'], inplace=True)
+    return df
 
 
 def test_sunspotter_no_parameters():
@@ -275,3 +289,18 @@ def test_hpc_to_hgs_position(sunspotter, obsdate):
 def test_get_lat_lon_in_hgs(sunspotter, obsdate):
     assert isinstance(sunspotter.get_lat_lon_in_hgs(obsdate)[0], Longitude)
     assert isinstance(sunspotter.get_lat_lon_in_hgs(obsdate)[1], Latitude)
+
+
+def test_match_with_swpc_for_obsdate_default(sunspotter, compare_df):
+    obsdate = '2005-12-31 12:48:02'
+    match_result = sunspotter.match_with_swpc_for_obsdate(obsdate)
+    assert match_result.equals(compare_df)
+
+
+def test_match_with_swpc_for_obsdate_threshold_warning(sunspotter, compare_df):
+    obsdate = '2005-12-31 12:48:02'
+
+    with pytest.warns(SunpyUserWarning):
+        match_result = sunspotter.match_with_swpc_for_obsdate(obsdate, match_threshold=0)
+
+    assert match_result.equals(compare_df)
