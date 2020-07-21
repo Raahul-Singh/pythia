@@ -1,11 +1,11 @@
 import warnings
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import astropy.units as u
 import matplotlib.pyplot as plt
 import pandas as pd
-from datetime import datetime, timedelta
-from astropy.coordinates import SkyCoord, Longitude
+from astropy.coordinates import Longitude, SkyCoord
 from pythia.cleaning import MidnightRotation
 from pythia.seo import TableMatcher
 from sunpy.coordinates import frames

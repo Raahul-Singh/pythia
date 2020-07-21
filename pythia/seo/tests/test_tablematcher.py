@@ -1,9 +1,8 @@
 import numpy as np
 import pandas as pd
 import pytest
-
-from sunpy.util import SunpyUserWarning
 from pythia.seo.tablematcher import TableMatcher
+from sunpy.util import SunpyUserWarning
 
 
 @pytest.fixture
