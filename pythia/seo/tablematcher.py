@@ -5,6 +5,7 @@ from sunpy.util import SunpyUserWarning
 
 __all__ = ['TableMatcher']
 
+
 class TableMatcher:
     """
     Table Matcher Object for finding corresponding rows across two distinct dataframes.

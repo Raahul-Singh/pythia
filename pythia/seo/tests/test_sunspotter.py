@@ -67,6 +67,7 @@ def obsdate():
     # `obs_date` corresponding to `#id` 1
     return '2000-01-01 12:47:02'
 
+
 @pytest.fixture
 def compare_df():
     df = pd.DataFrame(columns=['id_filename', 'Sunspotter NOAA', 'HEK NOAA', 'Sunspotter Longitude',

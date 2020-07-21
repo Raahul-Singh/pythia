@@ -9,12 +9,12 @@ from sunpy.util import SunpyUserWarning
 def df_1():
 	data = {
 		'feat_a': [415.31357, 788.04966, 615.53375,	194.83354, 776.57878, 831.94859],
-		'feat_b': [266.63121, 343.50743, 357.68856,	386.77800, 662.85391, 739.92834],
+		'feat_b': [266.63121, 343.50743, 357.68856, 386.77800, 662.85391, 739.92834],
 		'feat_c': [-191.75614, 546.61535, 204.86999, -628.51599, 523.89210, 633.57692],
 		'feat_d': [-484.68983, -332.40190, -304.30979, -246.68507, 300.20745, 452.88802],
 		'feat_e': [28.0535, 38.6332, 18.4522, 42.1355, 40.4294, 55.406],
 		'feat_f': [121.139, 23.7468, 104.284, 62.3888, 41.531, 39.5828]
-		}
+		   }
 	return pd.DataFrame(data)
 
 
@@ -41,7 +41,7 @@ def df_2():
                     -636.864014, 561.471985, -351.167999, -119.040001, 248.,
                     345.216003, 426.559998, -196.416, -396.799988, -313.471985,
                     -414.656006, 380.928009, 186.496002]
-        }
+	        }
     return pd.DataFrame(data)
 
 
@@ -57,7 +57,7 @@ def feature_2():
 
 @pytest.fixture
 def best_match():
-	return [5, 13, 15,  7,  9,  9]
+	return [5, 13, 15, 7, 9, 9]
 
 
 def test_match_default_algorithm():
@@ -96,7 +96,7 @@ def test_match_euclidean_no_threshold(df_1, df_2, feature_1, feature_2, best_mat
 
 
 def test_match_euclidean(df_1, df_2, feature_1, feature_2, best_match):
-	matcher = TableMatcher( match_type='euclidean')
+	matcher = TableMatcher(match_type='euclidean')
 
 	with pytest.warns(SunpyUserWarning):
 		matcher.match(df_1, df_2, feature_1, feature_2, threshold=0)
