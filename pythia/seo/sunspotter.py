@@ -752,11 +752,11 @@ class Sunspotter:
         >>> sunspotter = Sunspotter()
         >>> obsdate = '2000-01-01 12:47:02'
         >>> sunspotter.rotate_to_midnight(obsdate)
-        [(<Longitude 6.50176828 deg>, <Latitude 24.37393479 deg>),
-        (<Longitude 6.23906649 deg>, <Latitude 36.4502797 deg>),
-        (<Longitude 6.43015715 deg>, <Latitude -28.26438437 deg>),
-        (<Longitude 6.61003124 deg>, <Latitude -16.47798634 deg>),
-        (<Longitude 6.66228849 deg>, <Latitude 10.3648738 deg>)]
+        [(<Angle 36.97694919 deg>, <Latitude 24.37393479 deg>),
+        (<Angle 17.19347675 deg>, <Latitude 36.4502797 deg>),
+        (<Angle 61.2536554 deg>, <Latitude -28.26438437 deg>),
+        (<Angle -21.9812322 deg>, <Latitude -16.47798634 deg>),
+        (<Angle -43.16765926 deg>, <Latitude 10.3648738 deg>)]
         """
         rotator = MidnightRotation()
         longitude, latitude = self.get_lat_lon_in_hgs(obsdate, **kwargs)
@@ -790,23 +790,22 @@ class Sunspotter:
         >>> sunspotter = Sunspotter()
         >>> obslist = ['2000-01-02 12:51:02', '2000-01-14 12:47:02']
         >>> sunspotter.rotate_list_to_midnight(obslist)
-        {'2000-01-02 12:51:02': [(<Longitude 6.19998452 deg>,
-           <Latitude 36.52576413 deg>),
-          (<Longitude 6.57180621 deg>, <Latitude -16.37770425 deg>),
-          (<Longitude 6.61932484 deg>, <Latitude 10.87542475 deg>),
-          (<Longitude 6.62367527 deg>, <Latitude 10.21004421 deg>)],
-         '2000-01-14 12:47:02': [(<Longitude 6.59902787 deg>,
-           <Latitude -17.47160603 deg>),
-          (<Longitude 6.45137373 deg>, <Latitude 27.17957675 deg>),
-          (<Longitude 6.33516688 deg>, <Latitude -32.62222324 deg>),
-          (<Longitude 6.6540996 deg>, <Latitude 11.55917 deg>),
-          (<Longitude 6.59865146 deg>, <Latitude 17.50447034 deg>),
-          (<Longitude 6.64433002 deg>, <Latitude -12.83001216 deg>),
-          (<Longitude 6.62074025 deg>, <Latitude 15.44152655 deg>),
-          (<Longitude 6.58919388 deg>, <Latitude -18.30832087 deg>),
-          (<Longitude 6.58187325 deg>, <Latitude 18.90391944 deg>),
-          (<Longitude 6.62674631 deg>, <Latitude -14.82469254 deg>),
-          (<Longitude 6.63042185 deg>, <Latitude -14.43274934 deg>)]}
+        {'2000-01-02 12:51:02': [(<Angle 29.18769332 deg>, <Latitude 36.52576413 deg>),
+        (<Angle -7.76906673 deg>, <Latitude -16.37770425 deg>),
+        (<Angle -22.24109406 deg>, <Latitude 10.87542475 deg>),
+        (<Angle -35.77644712 deg>, <Latitude 10.21004421 deg>)],
+        '2000-01-14 12:47:02': [(<Angle 34.29683246 deg>,
+        <Latitude -17.47160603 deg>),
+        (<Angle 22.69921514 deg>, <Latitude 27.17957675 deg>),
+        (<Angle 11.30137214 deg>, <Latitude -32.62222324 deg>),
+        (<Angle -5.21988476 deg>, <Latitude 11.55917 deg>),
+        (<Angle 63.83616486 deg>, <Latitude 17.50447034 deg>),
+        (<Angle 60.67931868 deg>, <Latitude -12.83001216 deg>),
+        (<Angle -38.76920932 deg>, <Latitude 15.44152655 deg>),
+        (<Angle -54.48209673 deg>, <Latitude -18.30832087 deg>),
+        (<Angle -66.3248029 deg>, <Latitude 18.90391944 deg>),
+        (<Angle -10.24376936 deg>, <Latitude -14.82469254 deg>),
+        (<Angle 14.22674259 deg>, <Latitude -14.43274934 deg>)]}
         """
         obs_dict = {}
         for obsdate in obslist:
