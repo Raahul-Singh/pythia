@@ -861,8 +861,45 @@ class Sunspotter:
         hgs_frame = self.hpc_to_hgs_position(obsdate, get_nearest)
         return hgs_frame.lon, hgs_frame.lat
 
-    def match_with_swpc_for_obsdate(self, obsdate, flare_positions='SWPC', days_delta=1, match_type='euclidean',
-                                    noaa_ar='NOAA SWPC Observer', fmt='%Y-%m-%d %H:%M:%S', **kwargs):
+    def match_with_swpc_for_obsdate(self, obsdate, *, days_delta=1, match_type='euclidean',
+                                    noaa_ar='NOAA SWPC Observer', fmt='%Y-%m-%d %H:%M:%S', match_threshold=20):
+        """
+        Match Sunspotter observations to observations from HEK.
+
+        Parameters
+        ----------
+        obsdate : str
+            The observation time and date.
+        days_delta : int, optional
+            Number of days from the obsdate, by default 1
+        match_type : str, optional
+            The matching Algorithm that tablematcher will use, by default 'euclidean'
+        noaa_ar : str, optional
+            Parameter used by HEK attr, by default 'NOAA SWPC Observer'
+        fmt : str, optional
+            Format of the obsdate, by default '%Y-%m-%d %H:%M:%S'
+        match_threshold : float, optional
+            Threshold for being considered a good match
+
+        Returns
+        -------
+        compare_df : pd.DataFrame
+            Dataframe comparing the matched values
+
+        Examples
+        --------
+        >>> from pythia.seo import Sunspotter
+        >>> sunspotter = Sunspotter()
+        >>> obsdate = '2005-12-31 12:48:02'
+        >>> sunspotter.match_with_swpc_for_obsdate(obsdate)
+                    Sunspotter NOAA  HEK NOAA  Sunspotter Longitude  HEK Longitude  Sunspotter Latitude  HEK Latitude
+        id_filename
+        12961                  10838     10838             75.808901             88            16.218928            15
+        12962                  10840     10840             18.191948             26            -2.875433            -3
+        12963                  10841     10841             11.644637             16            11.521983            12
+        12964                  10843     10843             -7.105894             -2            12.301117            12
+        12965                  10844     10844             76.811298             81           -14.756412           -14
+        """
         obsdate = self.get_nearest_observation(obsdate)
 
         a = hek.attrs
@@ -875,8 +912,6 @@ class Sunspotter:
 
         data = result['hgs_x', 'hgs_y', 'ar_noaanum']
         data = data.to_pandas()
-
-        longitude, latitude = self.get_lat_lon_in_hgs(obsdate)
 
         properties = self.get_all_properties_from_obsdate(obsdate)
 
@@ -892,6 +927,23 @@ class Sunspotter:
         df_2 = data[['hgs_x', 'hgs_y']]
 
         tablematcher = TableMatcher(match_type=match_type)
-        res, prob = tablematcher.match(df_1, df_2)
+        res = tablematcher.match(df_1, df_2, threshold=match_threshold)
 
-        return properties, data.iloc[res]
+        hek_prop = data.iloc[res]
+
+        compare_df = pd.DataFrame()
+
+        longitude, latitude = self.get_lat_lon_in_hgs(obsdate)
+
+        if 'noaa' in properties.columns:
+            # Because the 14 years dataset does not have the NOAA numbers.
+            compare_df['Sunspotter NOAA'] = properties.noaa
+
+        compare_df['HEK NOAA'] = hek_prop.ar_noaanum.values
+
+        compare_df['Sunspotter Longitude'] = longitude
+        compare_df['HEK Longitude'] = hek_prop.hgs_x.values
+
+        compare_df['Sunspotter Latitude'] = latitude
+        compare_df['HEK Latitude'] = hek_prop.hgs_y.values
+        return compare_df
