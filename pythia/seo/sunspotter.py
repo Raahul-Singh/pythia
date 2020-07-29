@@ -919,7 +919,7 @@ class Sunspotter:
         client = hek.HEKClient()
 
         tstart = datetime.strptime(obsdate, fmt)
-        tend = datetime.strptime(obsdate, fmt) + timedelta(days=days_delta)
+        tend = tstart + timedelta(days=days_delta)
 
         result = client.search(a.Time(tstart, tend),
                                a.AR, a.FRM.Name == noaa_ar)
@@ -935,12 +935,9 @@ class Sunspotter:
 
         rotated = self.rotate_to_midnight(obsdate)
 
-        lon = [coord[0].value for coord in rotated]
-        lat = [coord[1].value for coord in rotated]
+        lon, lat = zip(*rotated)
 
-        df_1 = pd.DataFrame(columns=['lon', 'lat'])
-        df_1['lon'] = lon
-        df_1['lat'] = lat
+        df_1 = pd.DataFrame(rotated, columns=['lon', 'lat'])
 
         df_2 = data[['hgs_x', 'hgs_y']]
 

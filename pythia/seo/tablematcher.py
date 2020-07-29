@@ -25,7 +25,7 @@ class TableMatcher:
         """
         self.match_type = match_type
 
-        if self.match_type is not 'cosine' and self.match_type != 'euclidean':
+        if self.match_type not in ['cosine', 'euclidean']:
             raise SunpyUserWarning('Incorrect matching algorithm specified.')
 
     def _prepare_tables(self, df_1, df_2, feature_1=None, feature_2=None):
