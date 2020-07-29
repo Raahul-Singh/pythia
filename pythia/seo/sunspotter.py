@@ -19,6 +19,7 @@ __all__ = ['Sunspotter']
 
 path = Path(__file__).parent.parent.parent / "data/all_clear"
 
+
 class Sunspotter:
 
     def __init__(self, *, timesfits: str = path / "lookup_timesfits.csv", get_all_timesfits_columns: bool = True,
@@ -90,7 +91,8 @@ class Sunspotter:
                                    " Either the Timesfits columns do not match, or the file is corrupted")
 
         if not self.timesfits_columns.issubset(self.timesfits.columns):
-            missing_columns = self.timesfits_columns - self.timesfits_columns.intersection(self.timesfits.columns)
+            missing_columns = self.timesfits_columns - \
+                self.timesfits_columns.intersection(self.timesfits.columns)
             missing_columns = ", ".join(missing_columns)
 
             raise SunpyUserWarning("Sunspotter Object cannot be created."
@@ -116,7 +118,8 @@ class Sunspotter:
                                    " Either the Properties columns do not match, or the file is corrupted")
 
         if not self.properties_columns.issubset(self.properties.columns):
-            missing_columns = self.properties_columns - self.properties_columns.intersection(self.properties.columns)
+            missing_columns = self.properties_columns - \
+                self.properties_columns.intersection(self.properties.columns)
             missing_columns = ", ".join(missing_columns)
 
             raise SunpyUserWarning("Sunspotter Object cannot be created."
@@ -143,7 +146,9 @@ class Sunspotter:
             self.classifications_columns = set(self.classifications_columns)
 
             if not self.classifications_columns.issubset(self.classifications.columns):
-                missing_columns = self.classifications_columns - self.classifications_columns.intersection(self.classifications.columns)
+                missing_columns = self.classifications_columns - \
+                    self.classifications_columns.intersection(
+                        self.classifications.columns)
                 missing_columns = ", ".join(missing_columns)
 
                 raise SunpyUserWarning("Sunspotter Object cannot be created."
@@ -381,7 +386,8 @@ class Sunspotter:
         unique_dates = self.timesfits.index.unique()
         index = unique_dates.get_loc(obsdate, method='nearest')
         nearest_date = str(unique_dates[index])
-        if nearest_date != str(obsdate):  # casting to str because obsdate can be a pandas.Timestamp
+        # casting to str because obsdate can be a pandas.Timestamp
+        if nearest_date != str(obsdate):
             warnings.warn(SunpyUserWarning("The given observation date isn't in the Timesfits file.\n"
                                            "Using the observation nearest to the given obsdate instead."))
         return nearest_date
@@ -488,7 +494,8 @@ class Sunspotter:
         """
         # TODO: Figure out a way to test the downloaded file.
         obsdate = self.get_nearest_observation(obsdate)
-        search_results = Fido.search(a.Time(obsdate, obsdate), a.Instrument.mdi)
+        search_results = Fido.search(
+            a.Time(obsdate, obsdate), a.Instrument.mdi)
         downloaded_file = Fido.fetch(search_results, path=filepath)
         return downloaded_file[0]
 
@@ -541,7 +548,8 @@ class Sunspotter:
         # TODO: Figure out the file naming convention to check if the file has been downloaded already.
         # TODO: Test this!
         obsdate = self.get_nearest_observation(obsdate)
-        search_results = Fido.search(a.Time(obsdate, obsdate), a.Instrument.mdi)
+        search_results = Fido.search(
+            a.Time(obsdate, obsdate), a.Instrument.mdi)
         downloaded_file = Fido.fetch(search_results, path=filepath)
         return Map(downloaded_file[0])
 
@@ -660,7 +668,8 @@ class Sunspotter:
         obsdate = self.get_nearest_observation(obsdate)
 
         client = hek.HEKClient()
-        result = client.search(hek.attrs.Time(obsdate, obsdate), hek.attrs.EventType(event_type))
+        result = client.search(hek.attrs.Time(
+            obsdate, obsdate), hek.attrs.EventType(event_type))
 
         obsdate = "T".join(str(obsdate).split())
 
@@ -706,11 +715,11 @@ class Sunspotter:
         number_of_observations = len(hek_result)
 
         bottom_left_coords = SkyCoord([(bottom_left_x[i], bottom_left_y[i]) * u.arcsec
-                                      for i in range(number_of_observations)],
+                                       for i in range(number_of_observations)],
                                       frame=mdi_map.coordinate_frame)
 
         top_right_coords = SkyCoord([(top_right_x[i], top_right_y[i]) * u.arcsec
-                                    for i in range(number_of_observations)],
+                                     for i in range(number_of_observations)],
                                     frame=mdi_map.coordinate_frame)
 
         fig = plt.figure(figsize=(12, 10), dpi=100)
@@ -767,7 +776,7 @@ class Sunspotter:
                                 latitude[index]))
         except TypeError:
             rotated.append((longitude + Longitude(rotator.get_longitude_at_nearest_midnight(obsdate, latitude)),
-                                latitude))
+                            latitude))
         return rotated
 
     def rotate_list_to_midnight(self, obslist: list, fmt='%Y-%m-%d %H:%M:%S'):
@@ -912,7 +921,8 @@ class Sunspotter:
         tstart = datetime.strptime(obsdate, fmt)
         tend = datetime.strptime(obsdate, fmt) + timedelta(days=days_delta)
 
-        result = client.search(a.Time(tstart, tend), a.AR, a.FRM.Name == noaa_ar)
+        result = client.search(a.Time(tstart, tend),
+                               a.AR, a.FRM.Name == noaa_ar)
 
         data = result['hgs_x', 'hgs_y', 'ar_noaanum']
         data = data.to_pandas()

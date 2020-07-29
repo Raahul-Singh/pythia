@@ -7,15 +7,15 @@ from sunpy.util import SunpyUserWarning
 
 @pytest.fixture
 def df_1():
-	data = {
-		'feat_a': [415.31357, 788.04966, 615.53375,	194.83354, 776.57878, 831.94859],
-		'feat_b': [266.63121, 343.50743, 357.68856, 386.77800, 662.85391, 739.92834],
-		'feat_c': [-191.75614, 546.61535, 204.86999, -628.51599, 523.89210, 633.57692],
-		'feat_d': [-484.68983, -332.40190, -304.30979, -246.68507, 300.20745, 452.88802],
-		'feat_e': [28.0535, 38.6332, 18.4522, 42.1355, 40.4294, 55.406],
-		'feat_f': [121.139, 23.7468, 104.284, 62.3888, 41.531, 39.5828]
-		   }
-	return pd.DataFrame(data)
+    data = {
+        'feat_a': [415.31357, 788.04966, 615.53375, 194.83354, 776.57878, 831.94859],
+        'feat_b': [266.63121, 343.50743, 357.68856, 386.77800, 662.85391, 739.92834],
+        'feat_c': [-191.75614, 546.61535, 204.86999, -628.51599, 523.89210, 633.57692],
+        'feat_d': [-484.68983, -332.40190, -304.30979, -246.68507, 300.20745, 452.88802],
+        'feat_e': [28.0535, 38.6332, 18.4522, 42.1355, 40.4294, 55.406],
+        'feat_f': [121.139, 23.7468, 104.284, 62.3888, 41.531, 39.5828]
+    }
+    return pd.DataFrame(data)
 
 
 @pytest.fixture
@@ -41,65 +41,65 @@ def df_2():
                     -636.864014, 561.471985, -351.167999, -119.040001, 248.,
                     345.216003, 426.559998, -196.416, -396.799988, -313.471985,
                     -414.656006, 380.928009, 186.496002]
-	        }
+    }
     return pd.DataFrame(data)
 
 
 @pytest.fixture
 def feature_1():
-	return ['feat_a', 'feat_b', 'feat_c', 'feat_d']
+    return ['feat_a', 'feat_b', 'feat_c', 'feat_d']
 
 
 @pytest.fixture
 def feature_2():
-	return ['feat_aa', 'feat_bb', 'feat_cc', 'feat_dd']
+    return ['feat_aa', 'feat_bb', 'feat_cc', 'feat_dd']
 
 
 @pytest.fixture
 def best_match():
-	return [5, 13, 15, 7, 9, 9]
+    return [5, 13, 15, 7, 9, 9]
 
 
 def test_match_default_algorithm():
-	matcher = TableMatcher()
-	assert matcher.match_type == 'cosine'
+    matcher = TableMatcher()
+    assert matcher.match_type == 'cosine'
 
 
 def test_match_incorrect_algorithm():
-	with pytest.raises(SunpyUserWarning):
-		TableMatcher(match_type='notAnAlgorithm')
+    with pytest.raises(SunpyUserWarning):
+        TableMatcher(match_type='notAnAlgorithm')
 
 
 def test_match_cosine_no_threshold(df_1, df_2, feature_1, feature_2, best_match):
-	matcher = TableMatcher()
+    matcher = TableMatcher()
 
-	with pytest.warns(SunpyUserWarning):
-		result = matcher.match(df_1, df_2, feature_1, feature_2)
+    with pytest.warns(SunpyUserWarning):
+        result = matcher.match(df_1, df_2, feature_1, feature_2)
 
-	assert np.array_equal(result, best_match)
+    assert np.array_equal(result, best_match)
 
 
 def test_match_cosine(df_1, df_2, feature_1, feature_2, best_match):
-	matcher = TableMatcher()
+    matcher = TableMatcher()
 
-	with pytest.warns(SunpyUserWarning):
-		matcher.match(df_1, df_2, feature_1, feature_2, threshold=0.999)
+    with pytest.warns(SunpyUserWarning):
+        matcher.match(df_1, df_2, feature_1, feature_2, threshold=0.999)
 
 
 def test_match_euclidean_no_threshold(df_1, df_2, feature_1, feature_2, best_match):
-	matcher = TableMatcher(match_type='euclidean')
+    matcher = TableMatcher(match_type='euclidean')
 
-	with pytest.warns(SunpyUserWarning):
-		result = matcher.match(df_1, df_2, feature_1, feature_2)
+    with pytest.warns(SunpyUserWarning):
+        result = matcher.match(df_1, df_2, feature_1, feature_2)
 
-	assert np.array_equal(result, best_match)
+    assert np.array_equal(result, best_match)
 
 
 def test_match_euclidean(df_1, df_2, feature_1, feature_2, best_match):
-	matcher = TableMatcher(match_type='euclidean')
+    matcher = TableMatcher(match_type='euclidean')
 
-	with pytest.warns(SunpyUserWarning):
-		matcher.match(df_1, df_2, feature_1, feature_2, threshold=0)
+    with pytest.warns(SunpyUserWarning):
+        matcher.match(df_1, df_2, feature_1, feature_2, threshold=0)
 
 
 def test_match_no_features_mismatch(df_1, df_2, best_match):

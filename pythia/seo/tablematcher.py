@@ -10,6 +10,7 @@ class TableMatcher:
     """
     Table Matcher Object for finding corresponding rows across two distinct dataframes.
     """
+
     def __init__(self, match_type='cosine'):
         """
         Parameters
@@ -69,7 +70,8 @@ class TableMatcher:
             feature_2 = df_2.columns.values
 
         if len(feature_1) != len(feature_2):
-            raise SunpyUserWarning("The number of columns to match the rows on must be the same.")
+            raise SunpyUserWarning(
+                "The number of columns to match the rows on must be the same.")
 
         try:
             df_1 = df_1[feature_1]
@@ -107,7 +109,8 @@ class TableMatcher:
         try:
             from sklearn.metrics.pairwise import cosine_similarity
         except ImportError:
-            raise SunpyUserWarning("Table Matcher requires Scikit Learn to be installed")
+            raise SunpyUserWarning(
+                "Table Matcher requires Scikit Learn to be installed")
 
         cosine = cosine_similarity(X=df_1, Y=df_2)
         result = np.argmax(cosine, axis=1)
@@ -136,7 +139,8 @@ class TableMatcher:
         try:
             from sklearn.metrics.pairwise import euclidean_distances
         except ImportError:
-            raise SunpyUserWarning("Table Matcher requires Scikit Learn to be installed")
+            raise SunpyUserWarning(
+                "Table Matcher requires Scikit Learn to be installed")
 
         euclidean = euclidean_distances(X=df_1, Y=df_2)
         result = np.argmin(euclidean, axis=1)
@@ -183,7 +187,7 @@ class TableMatcher:
         result: `numpy.ndarray`
             Array of size `(n,)` where n is the number of rows in df_1.
             Contains indices of rows from df_2 that best correspond to rows from df_1.
-        """s
+        """
         df_1, df_2 = self._prepare_tables(df_1, df_2, feature_1, feature_2)
 
         if self.match_type == 'cosine':
