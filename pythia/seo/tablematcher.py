@@ -93,7 +93,12 @@ class TableMatcher:
             First DataFrame to match the rows from.
         df_2: `pd.DataFrame`
             Second DataFrame to match the rows from.
+
+        Returns
+        -------
+        result: `numpy.ndarray`
             Array of size `(n,)` where n is the number of rows in df_1.
+            Contains indices of rows from df_2 that best correspond to rows from df_1.
         match_score: `numpy.ndarray`
             Array of size `(n,)` where n is the number of rows in df_1.
             Contains match score for  corresponding best matches.
@@ -178,7 +183,7 @@ class TableMatcher:
         result: `numpy.ndarray`
             Array of size `(n,)` where n is the number of rows in df_1.
             Contains indices of rows from df_2 that best correspond to rows from df_1.
-        """
+        """s
         df_1, df_2 = self._prepare_tables(df_1, df_2, feature_1, feature_2)
 
         if self.match_type == 'cosine':
