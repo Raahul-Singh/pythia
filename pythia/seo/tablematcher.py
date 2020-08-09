@@ -160,15 +160,14 @@ class TableMatcher:
         threshold: `float`
             Minimum score for considering a proper match.
         """
-        if self.match_type == 'euclidean':
-            for index, score_value in enumerate(match_score):
-                if score_value > threshold:
-                    warnings.warn(SunpyUserWarning(f"\nMatch at Index {index} is likely to be incorrect\n"))
+        match_dict = {
+            'euclidean' : lambda x, y: True if x > y else False,
+            'cosine' : lambda x, y: True if x < y else False
+            }
 
-        if self.match_type == 'cosine':
-            for index, score_value in enumerate(match_score):
-                if score_value < threshold:
-                    warnings.warn(SunpyUserWarning(f"\nMatch at Index {index} is likely to be incorrect\n"))
+        for index, score_value in enumerate(match_score):
+            if match_dict[self.match_type](score_value, threshold):
+                warnings.warn(SunpyUserWarning(f"\nMatch at Index {index} is likely to be incorrect\n"))
 
     def match(self, df_1, df_2, feature_1=None, feature_2=None, threshold=5):
         """
@@ -190,10 +189,12 @@ class TableMatcher:
         """
         df_1, df_2 = self._prepare_tables(df_1, df_2, feature_1, feature_2)
 
-        if self.match_type == 'cosine':
-            result, match_score = self.match_cosine(df_1, df_2)
-        elif self.match_type == 'euclidean':
-            result, match_score = self.match_euclidean(df_1, df_2)
+        match_dict = {
+            'euclidean' : self.match_euclidean,
+            'cosine' : self.match_cosine
+            }
+
+        result, match_score = match_dict[self.match_type](df_1, df_2)
 
         self.verify(match_score, threshold)
 

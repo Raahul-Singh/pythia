@@ -69,7 +69,7 @@ def obsdate():
 
 
 @pytest.fixture
-def compare_df():
+def comparision_df():
     df = pd.DataFrame(columns=['id_filename', 'Sunspotter NOAA', 'HEK NOAA', 'Sunspotter Longitude',
                                'HEK Longitude', 'Sunspotter Latitude', 'HEK Latitude'])
     df['id_filename'] = [12961, 12962, 12963, 12964, 12965]
@@ -316,20 +316,20 @@ def test_get_lat_lon_in_hgs(sunspotter, obsdate):
     assert isinstance(sunspotter.get_lat_lon_in_hgs(obsdate)[1], Latitude)
 
 
-def test_match_with_swpc_for_obsdate_default(sunspotter, compare_df):
+def test_match_with_swpc_for_obsdate_default(sunspotter, comparision_df):
     obsdate = '2005-12-31 12:48:02'
     match_result = sunspotter.match_with_swpc_for_obsdate(obsdate)
 
-    for column in compare_df.columns:
-        assert all(np.isclose(match_result[column], compare_df[column]))
+    for column in comparision_df.columns:
+        assert all(np.isclose(match_result[column], comparision_df[column]))
 
 
-def test_match_with_swpc_for_obsdate_threshold_warning(sunspotter, compare_df):
+def test_match_with_swpc_for_obsdate_threshold_warning(sunspotter, comparision_df):
     obsdate = '2005-12-31 12:48:02'
 
     with pytest.warns(SunpyUserWarning):
         match_result = sunspotter.match_with_swpc_for_obsdate(
             obsdate, match_threshold=0)
 
-    for column in compare_df.columns:
-        assert all(np.isclose(match_result[column], compare_df[column]))
+    for column in comparision_df.columns:
+        assert all(np.isclose(match_result[column], comparision_df[column]))
