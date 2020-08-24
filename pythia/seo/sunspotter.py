@@ -771,13 +771,8 @@ class Sunspotter:
         rotator = MidnightRotation()
         longitude, latitude = self.get_lat_lon_in_hgs(obsdate, **kwargs)
         rotated = []
-        try:
-            for index, lon in enumerate(longitude):
-                rotated.append((lon + Longitude(rotator.get_longitude_at_nearest_midnight(obsdate, latitude[index])),
-                                latitude[index]))
-        except TypeError:
-            rotated.append((longitude + Longitude(rotator.get_longitude_at_nearest_midnight(obsdate, latitude)),
-                            latitude))
+        for lon, lat in zip(longitude, latitude):
+            rotated.append((lon + Longitude(rotator.get_longitude_at_nearest_midnight(obsdate, lat)), lat))
         return rotated
 
     def rotate_list_to_midnight(self, obslist: list, fmt='%Y-%m-%d %H:%M:%S'):
