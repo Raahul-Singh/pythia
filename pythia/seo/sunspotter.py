@@ -936,9 +936,9 @@ class Sunspotter:
 
         rotated = self.rotate_to_midnight(obsdate)
 
-        lon, lat = zip(*rotated)
+        unitless_rotated = list(map(lambda x : (x[0].value, x[1].value), rotated))
 
-        df_1 = pd.DataFrame(rotated, columns=['lon', 'lat'])
+        df_1 = pd.DataFrame(unitless_rotated, columns=['lon', 'lat'])
 
         df_2 = data[['hgs_x', 'hgs_y']]
 
