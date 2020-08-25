@@ -1,12 +1,11 @@
-import numpy as np
-import torch
-from torch.utils.data import DataLoader
-import pandas as pd
 from pathlib import Path
-from pythia.learning import AR_DataModule
+
+import numpy as np
+import pandas as pd
 import pytest
-from sunpy.util import SunpyUserWarning
+from pythia.learning import AR_DataModule
 from pythia.learning.transforms import ToTensor
+from sunpy.util import SunpyUserWarning
 
 path = Path(__file__).parent / "test_data/"
 
@@ -22,9 +21,9 @@ def dummy_data():
     return df
 
 
-def distrtibution(array): 
-   _, c = np.unique(array, return_counts=True) 
-   return c / len(array)
+def distrtibution(array):
+    _, c = np.unique(array, return_counts=True)
+    return c / len(array)
 
 
 # Test Prepare Data
@@ -33,7 +32,7 @@ def test_default_loader(dummy_data):
 
 
 def test_no_y_specified(dummy_data):
-    
+
     with pytest.raises(ValueError):
         dataloader = AR_DataModule(data=dummy_data)
         dataloader.prepare_data()
@@ -75,6 +74,7 @@ def test_disjoint_split(dummy_data):
     assert set(dataloader.train.index).isdisjoint(dataloader.test.index)
     assert set(dataloader.test.index).isdisjoint(dataloader.val.index)
 
+
 def test_split_distribution(dummy_data):
     dataloader = AR_DataModule(data=dummy_data,
                                y_col='y')
@@ -93,12 +93,12 @@ def test_conf_passed(dummy_data):
 
     dataloader = AR_DataModule(data=dummy_data,
                                y_col='y',
-                               train_conf = training_conf,
-                               test_conf = testing_conf,
-                               val_conf = validation_conf)
+                               train_conf=training_conf,
+                               test_conf=testing_conf,
+                               val_conf=validation_conf)
 
     dataloader.prepare_data()
-    
+
     with pytest.warns(None) as record:
         dataloader.setup()
     assert not record
@@ -111,35 +111,34 @@ def test_no_conf(dummy_data):
 
     dataloader_no_train_conf = AR_DataModule(data=dummy_data,
                                              y_col='y',
-                                             test_conf = testing_conf,
-                                             val_conf = validation_conf)
+                                             test_conf=testing_conf,
+                                             val_conf=validation_conf)
 
     dataloader_no_train_conf.prepare_data()
     with pytest.warns(SunpyUserWarning):
         dataloader_no_train_conf.setup()
 
-
     dataloader_no_val_conf = AR_DataModule(data=dummy_data,
                                            y_col='y',
-                                           test_conf = testing_conf,
-                                           train_conf = training_conf)
+                                           test_conf=testing_conf,
+                                           train_conf=training_conf)
 
     dataloader_no_val_conf.prepare_data()
     with pytest.warns(SunpyUserWarning):
         dataloader_no_val_conf.setup()
 
-
     dataloader_no_test_conf = AR_DataModule(data=dummy_data,
                                             y_col='y',
-                                            train_conf = training_conf,
-                                            val_conf = validation_conf)
+                                            train_conf=training_conf,
+                                            val_conf=validation_conf)
 
     dataloader_no_test_conf.prepare_data()
     with pytest.warns(SunpyUserWarning):
         dataloader_no_test_conf.setup()
 
+
 def test_oversampling(dummy_data):
-    train_conf = {'is_tabular':True, 'transform' : ToTensor()}
+    train_conf = {'is_tabular': True, 'transform': ToTensor()}
     dataloader = AR_DataModule(data=dummy_data,
                                y_col='y',
                                batch_size=1,

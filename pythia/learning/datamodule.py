@@ -58,7 +58,7 @@ class AR_DataModule(pl.LightningDataModule):
         self.y_col = y_col
         self.train_size = train_size
         self.train_test_split = train_test_split
-        self.num_splits=num_splits
+        self.num_splits = num_splits
         self.weighted_sampling = weighted_sampling
         self.train_val_split = train_val_split
         self.batch_size = batch_size
@@ -92,17 +92,16 @@ class AR_DataModule(pl.LightningDataModule):
         if self.y_col is None or not isinstance(self.y_col, str):
             raise ValueError("Target column cannot be None")
 
-        if not isinstance(self.train_test_split, float) or self.train_test_split >=1 or self.train_test_split <=0:
+        if not isinstance(self.train_test_split, float) or self.train_test_split >= 1 or self.train_test_split <= 0:
             raise ValueError("train test split must be a fraction between 0 and 1")
 
-        if not isinstance(self.train_val_split, float) or self.train_val_split >=1 or self.train_val_split <=0:
+        if not isinstance(self.train_val_split, float) or self.train_val_split >= 1 or self.train_val_split <= 0:
             raise ValueError("train val split must be a fraction between 0 and 1")
 
         self.train_test_splitter = StratifiedShuffleSplit(n_splits=self.num_splits, test_size=self.train_test_split)
         self.train_val_splitter = StratifiedShuffleSplit(n_splits=self.num_splits, test_size=self.train_val_split)
 
         # TODO : Add support for K fold cross validataion. only 1 split supported as of now.
-
 
     def setup(self, stage=None):
         """
@@ -129,19 +128,19 @@ class AR_DataModule(pl.LightningDataModule):
 
             if isinstance(self.train_conf, dict):
                 self.train_dataset = AR_Dataset(data=self.train, X_col=self.X_col,
-                                                     y_col=self.y_col, **self.train_conf)
+                                                y_col=self.y_col, **self.train_conf)
             else:
                 warnings.warn(SunpyUserWarning("No training configurations specified, using default configuration."))
                 self.train_dataset = AR_Dataset(data=self.train, X_col=self.X_col,
-                                                     y_col=self.y_col)
+                                                y_col=self.y_col)
 
             if isinstance(self.val_conf, dict):
                 self.val_dataset = AR_Dataset(data=self.val, X_col=self.X_col,
-                                                   y_col=self.y_col, **self.val_conf)
+                                              y_col=self.y_col, **self.val_conf)
             else:
                 warnings.warn(SunpyUserWarning("No validation configurations specified, using default configuration."))
                 self.val_dataset = AR_Dataset(data=self.train, X_col=self.X_col,
-                                                   y_col=self.y_col)
+                                              y_col=self.y_col)
 
         # Assign test dataset for use in dataloader(s)
         if stage == 'test' or stage is None:

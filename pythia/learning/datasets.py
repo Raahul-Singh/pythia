@@ -38,8 +38,8 @@ class AR_Dataset(Dataset):
             raise TypeError("y_col must be a string denoting the label column")
 
         if is_tabular is True and is_fits is True:
-            warnings.warn(SunpyUserWarning("`is_tabular` and `is_fits` flags both cannot be simultaneously True",
-                                            "Using tabular data for analysis"))
+            warnings.warn(SunpyUserWarning("`is_tabular` and `is_fits` flags both cannot be simultaneously True "
+                                           "Using tabular data for analysis"))
 
         self.data = data
         self.X_col = X_col
@@ -79,7 +79,6 @@ class AR_Dataset(Dataset):
         """
         if torch.is_tensor(idx):
             idx = idx.tolist()
-
 
         if self.is_tabular:
             X = np.array(self.X.iloc[idx])

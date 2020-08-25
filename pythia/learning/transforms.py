@@ -5,7 +5,7 @@ from skimage import transform
 from sklearn.preprocessing import normalize
 
 __all__ = ['RemoveNaN', 'Normalize',  # Essential and should be applied first.
-           'Transpose', 'Rotate', 'Flip', # Optional.
+           'Transpose', 'Rotate', 'Flip',  # Optional.
            'Rescale', 'FixChannel', 'ToTensor']  # Essential and should be applied Last.
 
 
