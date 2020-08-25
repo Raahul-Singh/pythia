@@ -2,13 +2,15 @@ import warnings
 
 import numpy as np
 import pandas as pd
+import pytorch_lightning as pl
 import torch
-from pythia.learning import AR_FITS_Dataset
+from pythia.learning import AR_Dataset
 from sklearn.model_selection import StratifiedShuffleSplit
 from sunpy.util import SunpyUserWarning
 from torch.utils.data import DataLoader
 
 __all__ = ['ARDataModule']
+
 
 class ARDataModule(pl.LightningDataModule):
 
@@ -126,30 +128,30 @@ class ARDataModule(pl.LightningDataModule):
                 self.train = self.train[:int(len(self.train) * self.train_size)]
 
             if isinstance(self.train_conf, dict):
-                self.train_dataset = AR_FITS_Dataset(data=self.train, X_col=self.X_col,
+                self.train_dataset = AR_Dataset(data=self.train, X_col=self.X_col,
                                                      y_col=self.y_col, **self.train_conf)
             else:
                 warnings.warn(SunpyUserWarning("No training configurations specified, using default configuration."))
-                self.train_dataset = AR_FITS_Dataset(data=self.train, X_col=self.X_col,
+                self.train_dataset = AR_Dataset(data=self.train, X_col=self.X_col,
                                                      y_col=self.y_col)
 
             if isinstance(self.val_conf, dict):
-                self.val_dataset = AR_FITS_Dataset(data=self.val, X_col=self.X_col,
+                self.val_dataset = AR_Dataset(data=self.val, X_col=self.X_col,
                                                    y_col=self.y_col, **self.val_conf)
             else:
                 warnings.warn(SunpyUserWarning("No validation configurations specified, using default configuration."))
-                self.val_dataset = AR_FITS_Dataset(data=self.train, X_col=self.X_col,
+                self.val_dataset = AR_Dataset(data=self.train, X_col=self.X_col,
                                                    y_col=self.y_col)
 
         # Assign test dataset for use in dataloader(s)
         if stage == 'test' or stage is None:
 
             if isinstance(self.test_conf, dict):
-                self.test_dataset = AR_FITS_Dataset(data=self.test, X_col=self.X_col,
+                self.test_dataset = AR_Dataset(data=self.test, X_col=self.X_col,
                                                     y_col=self.y_col, **self.test_conf)
             else:
                 warnings.warn(SunpyUserWarning("No testing configurations specified, using default configuration."))
-                self.test_dataset = AR_FITS_Dataset(data=self.train, X_col=self.X_col,
+                self.test_dataset = AR_Dataset(data=self.train, X_col=self.X_col,
                                                     y_col=self.y_col)
 
     def train_dataloader(self):

@@ -1,35 +1,35 @@
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import pytest
+from astropy.io import fits
 from pythia.learning.datasets import AR_Dataset
 from pythia.learning.transforms import *
-import pytest
-import numpy as np
-from astropy.io import fits
 from torchvision import transforms
-import pandas as pd
-from pathlib import Path
-import matplotlib.pyplot as plt
-
 
 path = Path(__file__).parent / "test_data/"
 
 @pytest.fixture
-def fits_data():  
+def fits_data():
     fits_data = {'id' : 0,
                  'filename': '20000101_1247_mdiB_1_8809.fits',
                  'noaa': 8809,
                  'flares': 0,
                  'observation_number': 1}
-    
+
     return pd.DataFrame(fits_data, index=['id'])
 
 
 @pytest.fixture
-def img_data():  
+def img_data():
     img_data = {'id' : 0,
                 'filename': '5397a56aa57caf04c6000001.jpg',
                 'noaa': 0,
                 'flares': 0,
                 'observation_number': 1}
-    
+
     return pd.DataFrame(img_data, index=['id'])
 
 
@@ -105,4 +105,3 @@ def test_apply_transforms(fits_data, X_col, y_col, composed_transforms):
     X, y = dataset[0]
     assert len(X.shape) == 3
     assert X.shape == (1, 100, 100)
-    
