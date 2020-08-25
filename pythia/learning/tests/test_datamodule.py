@@ -7,7 +7,7 @@ from pythia.learning import AR_DataModule
 from pythia.learning.transforms import ToTensor
 from sunpy.util import SunpyUserWarning
 
-path = Path(__file__).parent / "test_data/"
+path = Path.cwd() / "learning/tests/test_data/"
 
 
 @pytest.fixture
