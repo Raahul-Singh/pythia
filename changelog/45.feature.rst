@@ -1,0 +1,2 @@
+The Search Events Object is completed and is hopefully without bugs.
+A table matcher is also added.

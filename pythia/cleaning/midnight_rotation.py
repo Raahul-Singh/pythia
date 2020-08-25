@@ -66,10 +66,10 @@ class MidnightRotation:
         >>> midnight_rotation = MidnightRotation()
         >>> obsdate = '2000-01-01 12:47:02'
         >>> midnight_rotation.get_seconds_to_nearest_midnight(obsdate)
-        40378
+        40378.0
         >>> obsdate = '2000-01-01 11:47:02'
         >>> midnight_rotation.get_seconds_to_nearest_midnight(obsdate)
-        -42422
+        -42422.0
         """
         timedifference = self.get_nearest_midnight(obsdate, fmt) - datetime.datetime.strptime(obsdate, fmt)
         return timedifference.total_seconds()

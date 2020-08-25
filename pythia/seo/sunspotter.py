@@ -1,11 +1,13 @@
 import warnings
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import astropy.units as u
 import matplotlib.pyplot as plt
 import pandas as pd
-from astropy.coordinates import SkyCoord
+from astropy.coordinates import Longitude, SkyCoord
 from pythia.cleaning import MidnightRotation
+from pythia.seo import TableMatcher
 from sunpy.coordinates import frames
 from sunpy.map import Map, MapSequence
 from sunpy.net import Fido
@@ -16,6 +18,7 @@ from sunpy.util import SunpyUserWarning
 __all__ = ['Sunspotter']
 
 path = Path(__file__).parent.parent.parent / "data/all_clear"
+
 
 class Sunspotter:
 
@@ -88,7 +91,8 @@ class Sunspotter:
                                    " Either the Timesfits columns do not match, or the file is corrupted")
 
         if not self.timesfits_columns.issubset(self.timesfits.columns):
-            missing_columns = self.timesfits_columns - self.timesfits_columns.intersection(self.timesfits.columns)
+            missing_columns = self.timesfits_columns - \
+                self.timesfits_columns.intersection(self.timesfits.columns)
             missing_columns = ", ".join(missing_columns)
 
             raise SunpyUserWarning("Sunspotter Object cannot be created."
@@ -114,7 +118,8 @@ class Sunspotter:
                                    " Either the Properties columns do not match, or the file is corrupted")
 
         if not self.properties_columns.issubset(self.properties.columns):
-            missing_columns = self.properties_columns - self.properties_columns.intersection(self.properties.columns)
+            missing_columns = self.properties_columns - \
+                self.properties_columns.intersection(self.properties.columns)
             missing_columns = ", ".join(missing_columns)
 
             raise SunpyUserWarning("Sunspotter Object cannot be created."
@@ -141,7 +146,9 @@ class Sunspotter:
             self.classifications_columns = set(self.classifications_columns)
 
             if not self.classifications_columns.issubset(self.classifications.columns):
-                missing_columns = self.classifications_columns - self.classifications_columns.intersection(self.classifications.columns)
+                missing_columns = self.classifications_columns - \
+                    self.classifications_columns.intersection(
+                        self.classifications.columns)
                 missing_columns = ", ".join(missing_columns)
 
                 raise SunpyUserWarning("Sunspotter Object cannot be created."
@@ -200,7 +207,7 @@ class Sunspotter:
         array([1, 2, 3, 4, 5])
         """
         obsdate = self.get_nearest_observation(obsdate)
-        return self.timesfits.loc[obsdate].get(key='#id').values
+        return self.timesfits.loc[obsdate].get(key='#id')
 
     def get_properties(self, idx: int):
         """
@@ -379,7 +386,8 @@ class Sunspotter:
         unique_dates = self.timesfits.index.unique()
         index = unique_dates.get_loc(obsdate, method='nearest')
         nearest_date = str(unique_dates[index])
-        if nearest_date != str(obsdate):  # casting to str because obsdate can be a pandas.Timestamp
+        # casting to str because obsdate can be a pandas.Timestamp
+        if nearest_date != str(obsdate):
             warnings.warn(SunpyUserWarning("The given observation date isn't in the Timesfits file.\n"
                                            "Using the observation nearest to the given obsdate instead."))
         return nearest_date
@@ -486,7 +494,8 @@ class Sunspotter:
         """
         # TODO: Figure out a way to test the downloaded file.
         obsdate = self.get_nearest_observation(obsdate)
-        search_results = Fido.search(a.Time(obsdate, obsdate), a.Instrument.mdi)
+        search_results = Fido.search(
+            a.Time(obsdate, obsdate), a.Instrument.mdi)
         downloaded_file = Fido.fetch(search_results, path=filepath)
         return downloaded_file[0]
 
@@ -539,7 +548,8 @@ class Sunspotter:
         # TODO: Figure out the file naming convention to check if the file has been downloaded already.
         # TODO: Test this!
         obsdate = self.get_nearest_observation(obsdate)
-        search_results = Fido.search(a.Time(obsdate, obsdate), a.Instrument.mdi)
+        search_results = Fido.search(
+            a.Time(obsdate, obsdate), a.Instrument.mdi)
         downloaded_file = Fido.fetch(search_results, path=filepath)
         return Map(downloaded_file[0])
 
@@ -658,7 +668,8 @@ class Sunspotter:
         obsdate = self.get_nearest_observation(obsdate)
 
         client = hek.HEKClient()
-        result = client.search(hek.attrs.Time(obsdate, obsdate), hek.attrs.EventType(event_type))
+        result = client.search(hek.attrs.Time(
+            obsdate, obsdate), hek.attrs.EventType(event_type))
 
         obsdate = "T".join(str(obsdate).split())
 
@@ -704,11 +715,11 @@ class Sunspotter:
         number_of_observations = len(hek_result)
 
         bottom_left_coords = SkyCoord([(bottom_left_x[i], bottom_left_y[i]) * u.arcsec
-                                      for i in range(number_of_observations)],
+                                       for i in range(number_of_observations)],
                                       frame=mdi_map.coordinate_frame)
 
         top_right_coords = SkyCoord([(top_right_x[i], top_right_y[i]) * u.arcsec
-                                    for i in range(number_of_observations)],
+                                     for i in range(number_of_observations)],
                                     frame=mdi_map.coordinate_frame)
 
         fig = plt.figure(figsize=(12, 10), dpi=100)
@@ -750,17 +761,17 @@ class Sunspotter:
         >>> sunspotter = Sunspotter()
         >>> obsdate = '2000-01-01 12:47:02'
         >>> sunspotter.rotate_to_midnight(obsdate)
-        [(<Longitude 6.50176828 deg>, <Latitude 24.37393479 deg>),
-        (<Longitude 6.23906649 deg>, <Latitude 36.4502797 deg>),
-        (<Longitude 6.43015715 deg>, <Latitude -28.26438437 deg>),
-        (<Longitude 6.61003124 deg>, <Latitude -16.47798634 deg>),
-        (<Longitude 6.66228849 deg>, <Latitude 10.3648738 deg>)]
+        [(<Angle 36.97694919 deg>, <Latitude 24.37393479 deg>),
+        (<Angle 17.19347675 deg>, <Latitude 36.4502797 deg>),
+        (<Angle 61.2536554 deg>, <Latitude -28.26438437 deg>),
+        (<Angle -21.9812322 deg>, <Latitude -16.47798634 deg>),
+        (<Angle -43.16765926 deg>, <Latitude 10.3648738 deg>)]
         """
         rotator = MidnightRotation()
-        _, latitude = self.get_lat_lon_in_hgs(obsdate, **kwargs)
+        longitude, latitude = self.get_lat_lon_in_hgs(obsdate, **kwargs)
         rotated = []
-        for lat in latitude:
-            rotated.append((rotator.get_longitude_at_nearest_midnight(obsdate, lat), lat))
+        for lon, lat in zip(longitude, latitude):
+            rotated.append((lon + Longitude(rotator.get_longitude_at_nearest_midnight(obsdate, lat)), lat))
         return rotated
 
     def rotate_list_to_midnight(self, obslist: list, fmt='%Y-%m-%d %H:%M:%S'):
@@ -787,23 +798,22 @@ class Sunspotter:
         >>> sunspotter = Sunspotter()
         >>> obslist = ['2000-01-02 12:51:02', '2000-01-14 12:47:02']
         >>> sunspotter.rotate_list_to_midnight(obslist)
-        {'2000-01-02 12:51:02': [(<Longitude 6.19998452 deg>,
-           <Latitude 36.52576413 deg>),
-          (<Longitude 6.57180621 deg>, <Latitude -16.37770425 deg>),
-          (<Longitude 6.61932484 deg>, <Latitude 10.87542475 deg>),
-          (<Longitude 6.62367527 deg>, <Latitude 10.21004421 deg>)],
-         '2000-01-14 12:47:02': [(<Longitude 6.59902787 deg>,
-           <Latitude -17.47160603 deg>),
-          (<Longitude 6.45137373 deg>, <Latitude 27.17957675 deg>),
-          (<Longitude 6.33516688 deg>, <Latitude -32.62222324 deg>),
-          (<Longitude 6.6540996 deg>, <Latitude 11.55917 deg>),
-          (<Longitude 6.59865146 deg>, <Latitude 17.50447034 deg>),
-          (<Longitude 6.64433002 deg>, <Latitude -12.83001216 deg>),
-          (<Longitude 6.62074025 deg>, <Latitude 15.44152655 deg>),
-          (<Longitude 6.58919388 deg>, <Latitude -18.30832087 deg>),
-          (<Longitude 6.58187325 deg>, <Latitude 18.90391944 deg>),
-          (<Longitude 6.62674631 deg>, <Latitude -14.82469254 deg>),
-          (<Longitude 6.63042185 deg>, <Latitude -14.43274934 deg>)]}
+        {'2000-01-02 12:51:02': [(<Angle 29.18769332 deg>, <Latitude 36.52576413 deg>),
+        (<Angle -7.76906673 deg>, <Latitude -16.37770425 deg>),
+        (<Angle -22.24109406 deg>, <Latitude 10.87542475 deg>),
+        (<Angle -35.77644712 deg>, <Latitude 10.21004421 deg>)],
+        '2000-01-14 12:47:02': [(<Angle 34.29683246 deg>,
+        <Latitude -17.47160603 deg>),
+        (<Angle 22.69921514 deg>, <Latitude 27.17957675 deg>),
+        (<Angle 11.30137214 deg>, <Latitude -32.62222324 deg>),
+        (<Angle -5.21988476 deg>, <Latitude 11.55917 deg>),
+        (<Angle 63.83616486 deg>, <Latitude 17.50447034 deg>),
+        (<Angle 60.67931868 deg>, <Latitude -12.83001216 deg>),
+        (<Angle -38.76920932 deg>, <Latitude 15.44152655 deg>),
+        (<Angle -54.48209673 deg>, <Latitude -18.30832087 deg>),
+        (<Angle -66.3248029 deg>, <Latitude 18.90391944 deg>),
+        (<Angle -10.24376936 deg>, <Latitude -14.82469254 deg>),
+        (<Angle 14.22674259 deg>, <Latitude -14.43274934 deg>)]}
         """
         obs_dict = {}
         for obsdate in obslist:
@@ -858,3 +868,92 @@ class Sunspotter:
         """
         hgs_frame = self.hpc_to_hgs_position(obsdate, get_nearest)
         return hgs_frame.lon, hgs_frame.lat
+
+    def match_with_swpc_for_obsdate(self, obsdate, *, days_delta=1, match_type='euclidean',
+                                    noaa_ar='NOAA SWPC Observer', fmt='%Y-%m-%d %H:%M:%S', match_threshold=20):
+        """
+        Match Sunspotter observations to observations from HEK.
+
+        Parameters
+        ----------
+        obsdate : str
+            The observation time and date.
+        days_delta : int, optional
+            Number of days from the obsdate, by default 1
+        match_type : str, optional
+            The matching Algorithm that tablematcher will use, by default 'euclidean'
+        noaa_ar : str, optional
+            Parameter used by HEK attr, by default 'NOAA SWPC Observer'
+        fmt : str, optional
+            Format of the obsdate, by default '%Y-%m-%d %H:%M:%S'
+        match_threshold : float, optional
+            Threshold for being considered a good match
+
+        Returns
+        -------
+        compare_df : pd.DataFrame
+            Dataframe comparing the matched values
+
+        Examples
+        --------
+        >>> from pythia.seo import Sunspotter
+        >>> sunspotter = Sunspotter()
+        >>> obsdate = '2005-12-31 12:48:02'
+        >>> sunspotter.match_with_swpc_for_obsdate(obsdate)
+                    Sunspotter NOAA  HEK NOAA  Sunspotter Longitude  HEK Longitude  Sunspotter Latitude  HEK Latitude
+        id_filename
+        12961                  10838     10838             75.808901             88            16.218928            15
+        12962                  10840     10840             18.191948             26            -2.875433            -3
+        12963                  10841     10841             11.644637             16            11.521983            12
+        12964                  10843     10843             -7.105894             -2            12.301117            12
+        12965                  10844     10844             76.811298             81           -14.756412           -14
+        """
+        obsdate = self.get_nearest_observation(obsdate)
+
+        a = hek.attrs
+        client = hek.HEKClient()
+
+        tstart = datetime.strptime(obsdate, fmt)
+        tend = tstart + timedelta(days=days_delta)
+
+        result = client.search(a.Time(tstart, tend),
+                               a.AR, a.FRM.Name == noaa_ar)
+
+        data = result['hgs_x', 'hgs_y', 'ar_noaanum']
+        data = data.to_pandas()
+
+        properties = self.get_all_properties_from_obsdate(obsdate)
+
+        if isinstance(properties, pd.Series):
+            properties = pd.DataFrame(data=[properties.values],
+                                      columns=properties.index.values)
+
+        rotated = self.rotate_to_midnight(obsdate)
+
+        unitless_rotated = list(map(lambda x : (x[0].value, x[1].value), rotated))
+
+        df_1 = pd.DataFrame(unitless_rotated, columns=['lon', 'lat'])
+
+        df_2 = data[['hgs_x', 'hgs_y']]
+
+        tablematcher = TableMatcher(match_type=match_type)
+        res = tablematcher.match(df_1, df_2, threshold=match_threshold)
+
+        hek_prop = data.iloc[res]
+
+        compare_df = pd.DataFrame()
+
+        longitude, latitude = self.get_lat_lon_in_hgs(obsdate)
+
+        if 'noaa' in properties.columns:
+            # Because the 14 years dataset does not have the NOAA numbers.
+            compare_df['Sunspotter NOAA'] = properties.noaa
+
+        compare_df['HEK NOAA'] = hek_prop.ar_noaanum.values
+
+        compare_df['Sunspotter Longitude'] = longitude
+        compare_df['HEK Longitude'] = hek_prop.hgs_x.values
+
+        compare_df['Sunspotter Latitude'] = latitude
+        compare_df['HEK Latitude'] = hek_prop.hgs_y.values
+        return compare_df
