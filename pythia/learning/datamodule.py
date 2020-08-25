@@ -9,14 +9,14 @@ from sklearn.model_selection import StratifiedShuffleSplit
 from sunpy.util import SunpyUserWarning
 from torch.utils.data import DataLoader
 
-__all__ = ['ARDataModule']
+__all__ = ['AR_DataModule']
 
 
-class ARDataModule(pl.LightningDataModule):
+class AR_DataModule(pl.LightningDataModule):
 
     def __init__(self, data, root_dir='data/all_clear/mdi/MDI/fits/', *,
                  X_col=None, y_col=None, train_size=1.0, train_test_split=0.2,
-                 train_val_split=0.2, num_splits=1, weighted_sampling=True, batch_size=10,
+                 train_val_split=0.2, num_splits=1, weighted_sampling=True, batch_size=4,
                  train_conf=None, test_conf=None, val_conf=None):
         """
         Parameters
@@ -26,8 +26,8 @@ class ARDataModule(pl.LightningDataModule):
             or the path to the CSV that contains the FITS data information.
         X_col : list or str
             Data Columns
-        y_col : list or str
-            Label Columns
+        y_col : str
+            Label Column
         root_dir : str, optional
             Path to the FITS files, by default 'data/all_clear/mdi/MDI/fits/'
         train_size : float, optional
@@ -42,7 +42,7 @@ class ARDataModule(pl.LightningDataModule):
             If training dataset is to be over sampled corresponding to the class distribution.
             by default True
         batch_size : int, optional
-            Number of datapoints in a batch, by default 10
+            Number of datapoints in a batch, by default 4
         train_conf : dict, optional
             Configuration to be passed to Training dataset, by default None
         test_conf : dict, optional
@@ -89,13 +89,13 @@ class ARDataModule(pl.LightningDataModule):
 
         if self.X_col is None:
             self.X_col = self.data.columns
-        if self.y_col is None:
+        if self.y_col is None or not isinstance(self.y_col, str):
             raise ValueError("Target column cannot be None")
 
-        if not isinstance(self.train_test_split, float) and self.train_test_split <=1:
+        if not isinstance(self.train_test_split, float) or self.train_test_split >=1 or self.train_test_split <=0:
             raise ValueError("train test split must be a fraction between 0 and 1")
 
-        if not isinstance(self.train_val_split, float) and self.train_val_split <=1:
+        if not isinstance(self.train_val_split, float) or self.train_val_split >=1 or self.train_val_split <=0:
             raise ValueError("train val split must be a fraction between 0 and 1")
 
         self.train_test_splitter = StratifiedShuffleSplit(n_splits=self.num_splits, test_size=self.train_test_split)
@@ -117,7 +117,7 @@ class ARDataModule(pl.LightningDataModule):
             self.train, self.test = self.data.iloc[train_index], self.data.iloc[test_index]
 
         for train_index, val_index in self.train_val_splitter.split(X=self.train[self.X_col], y=self.train[self.y_col]):
-            self.train, self.val = self.train.iloc[train_index], self.val.iloc[val_index]
+            self.train, self.val = self.train.iloc[train_index], self.train.iloc[val_index]
 
         # Assign train/val datasets for use in dataloaders
         if stage == 'fit' or stage is None:
@@ -148,11 +148,11 @@ class ARDataModule(pl.LightningDataModule):
 
             if isinstance(self.test_conf, dict):
                 self.test_dataset = AR_Dataset(data=self.test, X_col=self.X_col,
-                                                    y_col=self.y_col, **self.test_conf)
+                                               y_col=self.y_col, **self.test_conf)
             else:
                 warnings.warn(SunpyUserWarning("No testing configurations specified, using default configuration."))
                 self.test_dataset = AR_Dataset(data=self.train, X_col=self.X_col,
-                                                    y_col=self.y_col)
+                                               y_col=self.y_col)
 
     def train_dataloader(self):
         """
