@@ -9,7 +9,7 @@ from pythia.learning.datasets import AR_Dataset
 from pythia.learning.transforms import *
 from torchvision import transforms
 
-path = Path.cwd() / "learning/tests/test_data/"
+path = Path(__file__).parent / "test_data/"
 
 
 @pytest.fixture
