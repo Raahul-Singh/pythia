@@ -6,15 +6,14 @@ import astropy.units as u
 import matplotlib.pyplot as plt
 import pandas as pd
 from astropy.coordinates import Longitude, SkyCoord
+from pythia.cleaning import MidnightRotation
+from pythia.seo import TableMatcher
 from sunpy.coordinates import frames
 from sunpy.map import Map, MapSequence
 from sunpy.net import Fido
 from sunpy.net import attrs as a
 from sunpy.net import hek
 from sunpy.util import SunpyUserWarning
-
-from pythia.cleaning import MidnightRotation
-from pythia.seo import TableMatcher
 
 __all__ = ['Sunspotter']
 
