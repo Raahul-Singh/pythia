@@ -11,9 +11,19 @@ from torchvision import transforms
 
 path = Path(__file__).parent / "test_data/"
 
+
+@pytest.fixture
+def tabular_data():
+    tabular_data = {'id': 0,
+                    'X': 42,
+                    'y': 1}
+
+    return pd.DataFrame(tabular_data, index=['id'])
+
+
 @pytest.fixture
 def fits_data():
-    fits_data = {'id' : 0,
+    fits_data = {'id': 0,
                  'filename': '20000101_1247_mdiB_1_8809.fits',
                  'noaa': 8809,
                  'flares': 0,
@@ -24,7 +34,7 @@ def fits_data():
 
 @pytest.fixture
 def img_data():
-    img_data = {'id' : 0,
+    img_data = {'id': 0,
                 'filename': '5397a56aa57caf04c6000001.jpg',
                 'noaa': 0,
                 'flares': 0,
@@ -46,7 +56,7 @@ def X_col():
 
 @pytest.fixture
 def y_col():
-    return ['flares']
+    return 'flares'
 
 
 @pytest.fixture
@@ -93,6 +103,23 @@ def test_img_dataset(img_data, X_col, y_col, img_file):
 
     assert np.array_equal(X, img_file)
     assert y.dtype == np.int64
+
+
+def test_tabular_dataset(tabular_data):
+
+    dataset = AR_Dataset(data=tabular_data,
+                         X_col='X',
+                         y_col='y',
+                         is_fits=False,
+                         is_tabular=True)
+
+    assert len(dataset) == 1
+    assert len(dataset[0]) == 2
+
+    X, y = dataset[0]
+
+    assert X == tabular_data.iloc[0]['X']
+    assert y == tabular_data.iloc[0]['y']
 
 
 def test_apply_transforms(fits_data, X_col, y_col, composed_transforms):
