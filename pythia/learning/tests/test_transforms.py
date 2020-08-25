@@ -13,7 +13,7 @@ def nan_array():
 
 @pytest.fixture
 def random_array():
-    return np.random.randint(-100, 100, (5,5))
+    return np.random.randint(-100, 100, (5, 5))
 
 
 def apply_transform(array, transform):
@@ -41,6 +41,7 @@ def test_Normalize(random_array):
     assert np.sum(random_array > 1) + np.sum(random_array < -1) > 0
     assert np.sum(transformed_array > 1) + np.sum(transformed_array < -1) == 0
 
+
 def test_Transpose(random_array):
     transform = Transpose()
     transformed_array = apply_transform(random_array, transform)
@@ -49,6 +50,7 @@ def test_Transpose(random_array):
 
     assert np.array_equal(random_array.T, transformed_array)
 
+
 @pytest.mark.parametrize("angle", [5, 10, 15.0, 90, -45])
 def test_Rotate(random_array, angle):
     transform = Rotate(rotation=angle)
@@ -56,6 +58,7 @@ def test_Rotate(random_array, angle):
 
     assert random_array.shape == transformed_array.shape
     assert np.allclose(transformed_array, ndimage.rotate(random_array, angle, reshape=False))
+
 
 def test_Flip(random_array):
     transform = Flip()
@@ -67,7 +70,7 @@ def test_Flip(random_array):
 
 
 def test_Rescale(random_array):
-    transform = Rescale((3,3))
+    transform = Rescale((3, 3))
     transformed_array = apply_transform(random_array, transform)
 
     assert random_array.shape == (5, 5)

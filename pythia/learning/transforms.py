@@ -6,7 +6,7 @@ from sklearn.preprocessing import normalize
 
 __all__ = ['RemoveNaN', 'Normalize',  # Essential and should be applied first.
            'Transpose', 'Rotate', 'Flip', # Optional.
-           'Rescale', 'FixChannel', 'ToTensor'] # Essential and should be applied Last.
+           'Rescale', 'FixChannel', 'ToTensor']  # Essential and should be applied Last.
 
 
 class RemoveNaN(object):
@@ -39,7 +39,7 @@ class Normalize(object):
 
     def __call__(self, sample):
         X, y = sample
-        X = normalize(X,axis=self.axis, norm=self.norm, **self.kwargs)
+        X = normalize(X, axis=self.axis, norm=self.norm, **self.kwargs)
         return (X, y)
 
 
@@ -149,7 +149,7 @@ class FixChannel(object):
     """
     def __call__(self, sample):
         X, y = sample
-        X = np.stack((X,), axis=-1) # ',' is important!
+        X = np.stack((X, ), axis=-1)  # ',' is important!
         return (X, y)
 
 
@@ -163,7 +163,8 @@ class ToTensor(object):
         # swap depth axis because
         # numpy X: H x W x C
         # torch X: C X H X W
-        X = X.transpose((2, 0, 1))
+        if X.ndim == 3:
+            X = X.transpose((2, 0, 1))
 
         return (torch.from_numpy(X),
                 torch.from_numpy(y))
