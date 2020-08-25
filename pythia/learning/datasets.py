@@ -1,18 +1,17 @@
+import matplotlib.pyplot as plt
 import numpy as np
 import torch
 from astropy.io import fits
-from scipy import ndimage
-from sklearn.preprocessing import normalize
 from torch.utils.data import Dataset
 
-__all__ = ['AR_FITS_Dataset']
+__all__ = ['AR_Dataset']
 
-class AR_FITS_Dataset(Dataset):
+class AR_Dataset(Dataset):
     """
     AR dataset for FITS files.
     """
     def __init__(self, *, data, X_col, y_col, root_dir='data/all_clear/mdi/MDI/fits/',
-                 transform=None, rotation=None, transpose=False, flip=False, flip_axis=0):
+                 transform=None, is_fits=True):
         """
         Parameters
         ----------
@@ -26,24 +25,15 @@ class AR_FITS_Dataset(Dataset):
             Path to the FITS files, by default 'data/all_clear/mdi/MDI/fits/'
         transform : torchvision.transforms, optional
             Data transforms, by default None
-        rotation : int or float, optional
-            Angle in deg for rotating the image, by default None
-        transpose : bool, optional
-            Flag to denote if image has to be transposed, by default False
-        flip : bool, optional
-            Flag to denote if image has to be flipped, by default False
-        flip_axis : int, optional
-            Flip Axis, by default 0
+        is_fits : bool, optional
+            Is the input Data in FITS files.
         """
         self.data = data
         self.X_col = X_col
         self.y_col = y_col
         self.root_dir = root_dir
         self.transform = transform
-        self.rotation = rotation
-        self.transpose = transpose
-        self.flip = flip
-        self.flip_axis = flip_axis
+        self.is_fits = is_fits
 
         self.X = self.data[self.X_col]
         self.y = self.data[self.y_col]
@@ -57,7 +47,7 @@ class AR_FITS_Dataset(Dataset):
         length : int
             length of the dataset.
         """
-        return len(self.df)
+        return len(self.data)
 
     def __getitem__(self, idx):
         """
@@ -73,36 +63,18 @@ class AR_FITS_Dataset(Dataset):
         sample : tuple
             The Datapoint
 
-        Raises
-        ------
-        ValueError
-            If rotation angle is not an int or float.
-        ValueError
-            If flip axis is not 0 or 1.
         """
         if torch.is_tensor(idx):
             idx = idx.tolist()
 
-        img_name = self.X.iloc[idx]
-        image = fits.getdata(self.root_dir + img_name)
+        img_name = self.X.iloc[idx][0]
 
-        image = np.nan_to_num(image)
-        image = normalize(image, axis=1, norm='l1')
+        if self.is_fits:
+            image = fits.getdata(self.root_dir + img_name)
+        else:
+            image = plt.imread(self.root_dir + img_name)
 
-        if self.rotation is not None:
-            if not isinstance(self.rotation, (int, float)):
-                raise ValueError("Rotation must be an int or a float.")
-            image = ndimage.rotate(image, self.rotation, reshape=False)
-
-        if self.transpose is True:
-            image = image.T
-
-        if self.flip is True:
-            if not self.flip_axis == 0 or self.flip_axis != 1:
-                raise ValueError("Flip Axis must be 0 or 1.")
-            image = np.flip(image, axis=self.flip_axis)
-
-        sample = (image, np.array((self.y.iloc[idx])))
+        sample = (image, np.array((self.y.iloc[idx][0])))
 
         if self.transform:
             sample = self.transform(sample)
