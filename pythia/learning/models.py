@@ -7,7 +7,7 @@ __all__ = ['LSTM']
 class LSTM(nn.Module):
 
     def __init__(self, input_dim, hidden_dim, batch_size, output_dim=1,
-                num_layers=2):
+                 num_layers=2):
         """
         Vanilla Stacked LSTM Block
         Currently only outputs the final element in the sequence.

@@ -9,7 +9,7 @@ from pythia.learning.datasets import AR_Dataset
 from pythia.learning.transforms import *
 from torchvision import transforms
 
-path = Path(__file__).parent / "test_data/"
+PATH = Path(__file__).parent / "test_data/"
 
 
 @pytest.fixture
@@ -61,18 +61,18 @@ def y_col():
 
 @pytest.fixture
 def fits_file():
-    return fits.getdata(path / "20000101_1247_mdiB_1_8809.fits")
+    return fits.getdata(PATH / "20000101_1247_mdiB_1_8809.fits")
 
 
 @pytest.fixture
 def img_file():
-    return plt.imread(path / "5397a56aa57caf04c6000001.jpg")
+    return plt.imread(PATH / "5397a56aa57caf04c6000001.jpg")
 
 
 @pytest.fixture
 def default_dataset(fits_data, X_col, y_col):
     return AR_Dataset(data=fits_data,
-                      root_dir=str(path) + "/",
+                      root_dir=str(PATH) + "/",
                       X_col=X_col,
                       y_col=y_col)
 
@@ -91,7 +91,7 @@ def test_default_dataset(default_dataset, fits_file):
 def test_img_dataset(img_data, X_col, y_col, img_file):
 
     dataset = AR_Dataset(data=img_data,
-                         root_dir=str(path) + "/",
+                         root_dir=str(PATH) + "/",
                          X_col=X_col,
                          y_col=y_col,
                          is_fits=False)
@@ -124,7 +124,7 @@ def test_tabular_dataset(tabular_data):
 
 def test_apply_transforms(fits_data, X_col, y_col, composed_transforms):
     dataset = AR_Dataset(data=fits_data,
-                         root_dir=str(path) + "/",
+                         root_dir=str(PATH) + "/",
                          X_col=X_col,
                          y_col=y_col,
                          transform=composed_transforms)

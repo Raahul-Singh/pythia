@@ -2,6 +2,7 @@ import pytorch_lightning as pl
 
 __all__ = ['LearningTask']
 
+
 class LearningTask(pl.LightningModule):
 
     def __init__(self, model, hparams):
@@ -87,7 +88,7 @@ class LearningTask(pl.LightningModule):
         -----
         Supports Early Stopping on loss by default.
 
-        # TODO: make a validation dictionary / callback for more control. 
+        # TODO: make a validation dictionary / callback for more control.
         """
         x, y = batch
         y_hat = self.model(x)
