@@ -1,4 +1,3 @@
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -6,8 +5,6 @@ import pytest
 from pythia.learning import AR_DataModule
 from pythia.learning.transforms import ToTensor
 from sunpy.util import SunpyUserWarning
-
-path = Path(__file__).parent / "test_data/"
 
 
 @pytest.fixture
@@ -21,7 +18,7 @@ def dummy_data():
     return df
 
 
-def distrtibution(array):
+def distribution(array):
     _, c = np.unique(array, return_counts=True)
     return c / len(array)
 
@@ -80,10 +77,10 @@ def test_split_distribution(dummy_data):
                                y_col='y')
     dataloader.prepare_data()
     dataloader.setup()
-    data_dist = distrtibution(dataloader.data['y']) # Typo!
-    assert not np.any(np.abs(distrtibution(dataloader.train['y']) - data_dist) > 0.1)
-    assert not np.any(np.abs(distrtibution(dataloader.test['y']) - data_dist) > 0.1)
-    assert not np.any(np.abs(distrtibution(dataloader.val['y']) - data_dist) > 0.1)
+    data_dist = distribution(dataloader.data['y'])
+    assert not np.any(np.abs(distribution(dataloader.train['y']) - data_dist) > 0.1)
+    assert not np.any(np.abs(distribution(dataloader.test['y']) - data_dist) > 0.1)
+    assert not np.any(np.abs(distribution(dataloader.val['y']) - data_dist) > 0.1)
 
 
 def test_conf_passed(dummy_data):
@@ -150,6 +147,6 @@ def test_oversampling(dummy_data):
     for index, sample in enumerate(dataloader.train_dataloader()):
         sampled_labels.append(sample[1].numpy()[0])
 
-    data_distribution = distrtibution(sampled_labels)
+    data_distribution = distribution(sampled_labels)
 
     assert np.abs(data_distribution[0] - data_distribution[1]) < 0.2
