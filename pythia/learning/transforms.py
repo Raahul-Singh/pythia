@@ -6,7 +6,7 @@ from sklearn.preprocessing import normalize
 
 __all__ = ['RemoveNaN', 'Normalize',  # Essential and should be applied first.
            'Transpose', 'Rotate', 'Flip',  # Optional.
-           'Rescale', 'FixChannel', 'ToTensor']  # Essential and should be applied Last.
+           'Rescale', 'FixChannel', 'ToTensor', 'ToFloat']  # Essential and should be applied Last.
 
 
 class RemoveNaN(object):
@@ -168,3 +168,14 @@ class ToTensor(object):
 
         return (torch.from_numpy(X),
                 torch.from_numpy(y))
+
+
+class ToFloat(object):
+    """
+    Converts Torch Tensor datatype to float.
+    """
+    def __call__(self, sample):
+        X, y = sample
+        if not isinstance(X, torch.Tensor) or not isinstance(y, torch.Tensor):
+            raise TypeError("The sample data must be a Torch Tensor")
+        return (X.float(), y.float())

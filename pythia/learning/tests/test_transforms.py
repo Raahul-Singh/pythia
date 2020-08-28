@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+import torch
 from pythia.learning.transforms import *
 from scipy import ndimage
 
@@ -16,9 +17,12 @@ def random_array():
     return np.random.randint(-100, 100, (5, 5))
 
 
-def apply_transform(array, transform):
-    dummy_label = np.array(0)
-    transformed_array, _ = transform((array, dummy_label))
+def apply_transform(X, transform, y=None):
+    if y is None:
+        dummy_label = np.array([0])
+    else:
+        dummy_label = y
+    transformed_array, _ = transform((X, dummy_label))
     return transformed_array
 
 
@@ -98,3 +102,18 @@ def test_ToTensor(random_array):
     assert transformed_array.shape == (1, 5, 5)
 
     assert np.array_equal(channel_fixed_array[:, :, 0], transformed_array[0, :, :])
+
+
+def test_ToFloat(random_array):
+    transform = ToFloat()
+
+    with pytest.raises(TypeError):
+        apply_transform(random_array, transform)
+
+    transform = ToTensor()
+    transformed_array = apply_transform(random_array, transform)
+
+    transform = ToFloat()
+    float_array = apply_transform(transformed_array, transform, y=torch.Tensor(np.array(0)))
+
+    assert isinstance(float_array, torch.FloatTensor)
