@@ -15,7 +15,7 @@ def tabular_data():
                     'col_1': [i for i in range(30)],
                     'col_2': [i * 2 for i in range(30)],
                     'y': [i ** 2 for i in range(30)]
-                    }
+                   }
 
     return pd.DataFrame(tabular_data)
 
@@ -25,15 +25,14 @@ def composed_transforms(size=(100, 100)):
     return Compose([RemoveNaN(), ToTensor(), ToFloat()])
 
 
-
 @pytest.fixture
 def default_dataset(tabular_data):
     X_col = ['col_1', 'col_2']
     y_col = ['y']
     return BaseTimeSeriesDataset(data=tabular_data,
-                                    X_col=X_col,
-                                    y_col=y_col,
-                                    sequence_length=1)
+                                 X_col=X_col,
+                                 y_col=y_col,
+                                 sequence_length=1)
 
 
 @pytest.mark.parametrize("seq_length", [1, 2, 3, 4, 5,
@@ -47,15 +46,15 @@ def test_default_dataset(tabular_data, seq_length):
     if len(tabular_data) % seq_length != 0:
         with pytest.warns(SunpyUserWarning):
             dataset = BaseTimeSeriesDataset(data=tabular_data,
-                                               X_col=X_col,
-                                               y_col=y_col,
-                                               sequence_length=seq_length)
-
-    else:
-        dataset = BaseTimeSeriesDataset(data=tabular_data,
                                             X_col=X_col,
                                             y_col=y_col,
                                             sequence_length=seq_length)
+
+    else:
+        dataset = BaseTimeSeriesDataset(data=tabular_data,
+                                        X_col=X_col,
+                                        y_col=y_col,
+                                        sequence_length=seq_length)
 
     assert len(dataset.data) % seq_length == 0
 
@@ -71,7 +70,6 @@ def test_default_dataset(tabular_data, seq_length):
     assert y.shape == (seq_length, 1)
 
 
-
 def test_seq_len_more_than_half(tabular_data):
 
     X_col = ['col_1', 'col_2']
@@ -79,9 +77,9 @@ def test_seq_len_more_than_half(tabular_data):
 
     with pytest.raises(ValueError):
         BaseTimeSeriesDataset(data=tabular_data,
-                                 X_col=X_col,
-                                 y_col=y_col,
-                                 sequence_length=16)
+                              X_col=X_col,
+                              y_col=y_col,
+                              sequence_length=16)
 
 
 def test_seq_len_more_than_data(tabular_data):
@@ -91,9 +89,10 @@ def test_seq_len_more_than_data(tabular_data):
 
     with pytest.raises(ValueError):
         BaseTimeSeriesDataset(data=tabular_data,
-                                 X_col=X_col,
-                                 y_col=y_col,
-                                 sequence_length=31)
+                              X_col=X_col,
+                              y_col=y_col,
+                              sequence_length=31)
+
 
 @pytest.mark.parametrize("seq_length", [1, 2, 3, 4, 5])
 def test_apply_transforms(tabular_data, seq_length, composed_transforms):
@@ -102,10 +101,10 @@ def test_apply_transforms(tabular_data, seq_length, composed_transforms):
     y_col = ['y']
 
     dataset = BaseTimeSeriesDataset(data=tabular_data,
-                                        X_col=X_col,
-                                        y_col=y_col,
-                                        sequence_length=seq_length,
-                                        transform=composed_transforms)
+                                    X_col=X_col,
+                                    y_col=y_col,
+                                    sequence_length=seq_length,
+                                    transform=composed_transforms)
 
 
     X, y = dataset[0]
