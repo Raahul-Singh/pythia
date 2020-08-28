@@ -3,10 +3,10 @@ import numpy as np
 import pandas as pd
 import pytest
 import torch
-from torchvision.transforms import Compose
 from pythia.learning.datasets import BaseTimeSeriesDataset
 from pythia.learning.transforms import *
 from sunpy.util import SunpyUserWarning
+from torchvision.transforms import Compose
 
 
 @pytest.fixture
