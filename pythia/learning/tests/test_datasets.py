@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import pytest
 from astropy.io import fits
-from pythia.learning.datasets import AR_Dataset
+from pythia.learning.datasets import BaseDataset
 from pythia.learning.transforms import *
 from torchvision import transforms
 
@@ -56,7 +56,7 @@ def X_col():
 
 @pytest.fixture
 def y_col():
-    return 'flares'
+    return ['flares']
 
 
 @pytest.fixture
@@ -71,10 +71,10 @@ def img_file():
 
 @pytest.fixture
 def default_dataset(fits_data, X_col, y_col):
-    return AR_Dataset(data=fits_data,
-                      root_dir=str(PATH) + "/",
-                      X_col=X_col,
-                      y_col=y_col)
+    return BaseDataset(data=fits_data,
+                       root_dir=str(PATH) + "/",
+                       X_col=X_col,
+                       y_col=y_col)
 
 
 def test_default_dataset(default_dataset, fits_file):
@@ -90,11 +90,11 @@ def test_default_dataset(default_dataset, fits_file):
 
 def test_img_dataset(img_data, X_col, y_col, img_file):
 
-    dataset = AR_Dataset(data=img_data,
-                         root_dir=str(PATH) + "/",
-                         X_col=X_col,
-                         y_col=y_col,
-                         is_fits=False)
+    dataset = BaseDataset(data=img_data,
+                          root_dir=str(PATH) + "/",
+                          X_col=X_col,
+                          y_col=y_col,
+                          is_fits=False)
 
     assert len(dataset) == 1
     assert len(dataset[0]) == 2
@@ -107,11 +107,11 @@ def test_img_dataset(img_data, X_col, y_col, img_file):
 
 def test_tabular_dataset(tabular_data):
 
-    dataset = AR_Dataset(data=tabular_data,
-                         X_col='X',
-                         y_col='y',
-                         is_fits=False,
-                         is_tabular=True)
+    dataset = BaseDataset(data=tabular_data,
+                          X_col='X',
+                          y_col='y',
+                          is_fits=False,
+                          is_tabular=True)
 
     assert len(dataset) == 1
     assert len(dataset[0]) == 2
@@ -123,11 +123,11 @@ def test_tabular_dataset(tabular_data):
 
 
 def test_apply_transforms(fits_data, X_col, y_col, composed_transforms):
-    dataset = AR_Dataset(data=fits_data,
-                         root_dir=str(PATH) + "/",
-                         X_col=X_col,
-                         y_col=y_col,
-                         transform=composed_transforms)
+    dataset = BaseDataset(data=fits_data,
+                          root_dir=str(PATH) + "/",
+                          X_col=X_col,
+                          y_col=y_col,
+                          transform=composed_transforms)
 
     X, y = dataset[0]
     assert len(X.shape) == 3
