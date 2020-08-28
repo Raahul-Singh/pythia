@@ -185,14 +185,23 @@ class BaseDataModule(pl.LightningDataModule):
             warnings.warn("Cannot use Weighted Sampling with Regression tasks. Defaulting to Random Shuffling.")
             self.weighted_sampling = False
 
+        if isinstance(self.y_col, list) and len(self.y_col) > 1:
+            raise(SunpyUserWarning("Weighted Sampling does not work with multiclass classification." +
+                                   " Defaulting to random sampling."))
+
         if self.weighted_sampling is True:
-            classes, class_counts = np.unique(self.train[self.y_col], return_counts=True)
+            if isinstance(self.y_col, list):
+                y_col = self.y_col[0]
+            else:
+                y_col = self.y_col
+
+            classes, class_counts = np.unique(self.train[y_col], return_counts=True)
             class_weights = {}
             weights = 1 / torch.DoubleTensor(class_counts)
 
             for index, weight in enumerate(weights):
                 class_weights[index] = weight
-            weight_list = [class_weights[i] for i in self.train[self.y_col]]
+            weight_list = [class_weights[i] for i in self.train[np.array(y_col)]]
             sampler = torch.utils.data.sampler.WeightedRandomSampler(weight_list, len(weight_list))
 
             return DataLoader(self.train_dataset, batch_size=self.batch_size, sampler=sampler)
