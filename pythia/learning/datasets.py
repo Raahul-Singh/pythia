@@ -23,7 +23,7 @@ class BaseDataset(Dataset):
             The Dataframe with the FITS data information.
         X_col : list or str
             Data Columns
-        y_col : str
+        y_col : list or str
             Label Column
         root_dir : str, optional
             Path to the FITS files, by default 'data/all_clear/mdi/MDI/fits/'
@@ -34,8 +34,8 @@ class BaseDataset(Dataset):
         is_tabular : bool, optional
             Is the input Data in Tabular.
         """
-        if not isinstance(y_col, str):
-            raise TypeError("y_col must be a string denoting the label column")
+        if not isinstance(y_col, (str, list)):
+            raise TypeError("y_col must be a list or string denoting the label column")
 
         if is_tabular is True and is_fits is True:
             warnings.warn(SunpyUserWarning("`is_tabular` and `is_fits` flags both cannot be simultaneously True "
@@ -84,7 +84,9 @@ class BaseDataset(Dataset):
             X = np.array(self.X.iloc[idx])
 
         else:
-            img_name = self.X.iloc[idx][0]
+            img_name = self.X.iloc[idx]
+            if not isinstance(img_name, str):
+                img_name = img_name[0]
 
             if self.is_fits:
                 image = fits.getdata(self.root_dir + img_name)
@@ -95,7 +97,7 @@ class BaseDataset(Dataset):
 
         sample = (X, np.array((self.y.iloc[idx])))
 
-        if self.transform:
+        if self.transform is not None:
             sample = self.transform(sample)
 
         return sample

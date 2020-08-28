@@ -56,7 +56,7 @@ def X_col():
 
 @pytest.fixture
 def y_col():
-    return 'flares'
+    return ['flares']
 
 
 @pytest.fixture

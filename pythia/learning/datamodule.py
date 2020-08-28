@@ -100,7 +100,7 @@ class BaseDataModule(pl.LightningDataModule):
 
         if self.X_col is None:
             warnings.warn(SunpyUserWarning("No Feature Columns specified." +
-                                      "Assuming all columns except target columns to be feature columns."))
+                                           "Assuming all columns except target columns to be feature columns."))
             self.X_col = set(self.data.columns) - set(self.y_col)
 
         if not isinstance(self.train_test_split, float) or self.train_test_split >= 1 or self.train_test_split <= 0:
@@ -147,18 +147,18 @@ class BaseDataModule(pl.LightningDataModule):
 
             if isinstance(self.train_conf, dict):
                 self.train_dataset = BaseDataset(data=self.train, X_col=self.X_col,
-                                                y_col=self.y_col, **self.train_conf)
+                                                 y_col=self.y_col, **self.train_conf)
             else:
                 warnings.warn(SunpyUserWarning("No training configurations specified, using default configuration."))
                 self.train_dataset = BaseDataset(data=self.train, X_col=self.X_col,
-                                                y_col=self.y_col)
+                                                 y_col=self.y_col)
 
             if isinstance(self.val_conf, dict):
                 self.val_dataset = BaseDataset(data=self.val, X_col=self.X_col,
                                               y_col=self.y_col, **self.val_conf)
             else:
                 warnings.warn(SunpyUserWarning("No validation configurations specified, using default configuration."))
-                self.val_dataset = BaseDataset(data=self.train, X_col=self.X_col,
+                self.val_dataset = BaseDataset(data=self.val, X_col=self.X_col,
                                               y_col=self.y_col)
 
         # Assign test dataset for use in dataloader(s)
@@ -166,11 +166,11 @@ class BaseDataModule(pl.LightningDataModule):
 
             if isinstance(self.test_conf, dict):
                 self.test_dataset = BaseDataset(data=self.test, X_col=self.X_col,
-                                               y_col=self.y_col, **self.test_conf)
+                                                y_col=self.y_col, **self.test_conf)
             else:
                 warnings.warn(SunpyUserWarning("No testing configurations specified, using default configuration."))
-                self.test_dataset = BaseDataset(data=self.train, X_col=self.X_col,
-                                               y_col=self.y_col)
+                self.test_dataset = BaseDataset(data=self.test, X_col=self.X_col,
+                                                y_col=self.y_col)
 
     def train_dataloader(self):
         """

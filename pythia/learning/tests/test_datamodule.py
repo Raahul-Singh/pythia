@@ -100,27 +100,27 @@ def test_no_conf(dummy_data):
     validation_conf = {}
 
     dataloader_no_train_conf = BaseDataModule(data=dummy_data,
-                                             y_col='y',
-                                             test_conf=testing_conf,
-                                             val_conf=validation_conf)
+                                              y_col='y',
+                                              test_conf=testing_conf,
+                                              val_conf=validation_conf)
 
     dataloader_no_train_conf.prepare_data()
     with pytest.warns(SunpyUserWarning):
         dataloader_no_train_conf.setup()
 
     dataloader_no_val_conf = BaseDataModule(data=dummy_data,
-                                           y_col='y',
-                                           test_conf=testing_conf,
-                                           train_conf=training_conf)
+                                            y_col='y',
+                                            test_conf=testing_conf,
+                                            train_conf=training_conf)
 
     dataloader_no_val_conf.prepare_data()
     with pytest.warns(SunpyUserWarning):
         dataloader_no_val_conf.setup()
 
     dataloader_no_test_conf = BaseDataModule(data=dummy_data,
-                                            y_col='y',
-                                            train_conf=training_conf,
-                                            val_conf=validation_conf)
+                                             y_col='y',
+                                             train_conf=training_conf,
+                                             val_conf=validation_conf)
 
     dataloader_no_test_conf.prepare_data()
     with pytest.warns(SunpyUserWarning):
