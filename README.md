@@ -17,6 +17,15 @@ The mentors for this project were:
 
 @**samaloney**
 
+Articulating my Journey through Medium Articles
+-----------------------------------------------
+
+1) [Chapter 0: The Prelude](https://medium.com/@_hawks_/chapter-0-the-prelude-320751d2e61e)
+1) [Chapter 1: Apricity](https://medium.com/@_hawks_/chapter-1-apricity-aef3bd172dab)
+1) [Chapter 2: Inquisition](https://medium.com/swlh/chapter-2-inquisition-dd46de0863f6)
+1) [Final Chapter: The Road Goes Ever On](https://medium.com/@_hawks_/final-chapter-the-road-goes-ever-on-53fb35e650f4)
+
+
 Description of the work done
 ----------------------------
 
